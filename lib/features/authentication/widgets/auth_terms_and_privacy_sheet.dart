@@ -208,34 +208,46 @@ class _AuthTermsAndPrivacySheetState extends State<AuthTermsAndPrivacySheet> {
       children: [
         _buildNoticeBanner(
           icon: Icons.info_outline_rounded,
-          title: 'Medical Disclaimer & Scope of Use',
+          title: 'Medical Disclaimer & Educational Scope',
           body:
-              'FlowCycle is designed exclusively as an educational wellness and reproductive cycle tracking tool. It is NOT a certified medical diagnostic device and must NEVER be used as a standalone contraceptive method.',
+              'FlowCycle is an educational wellness and reproductive tracking tool. It is NOT a certified medical device, diagnostic provider, or substitute for professional medical care, and must NEVER be used as a standalone contraceptive method.',
           accentColor: const Color(0xFFE84D75),
           bgColor: const Color(0xFFFFF0F5),
         ),
         const SizedBox(height: 16),
-        _buildSectionHeader('1. Acceptance of Terms'),
+        _buildSectionHeader('1. Eligibility & Your Account'),
         _buildParagraph(
-          'By accessing or using the FlowCycle mobile application, you agree to be bound by these Terms of Service. If you do not agree with any portion of these terms, please discontinue use immediately.',
+          'You must meet the minimum legal age required to use FlowCycle in your jurisdiction. You are responsible for keeping your login credentials, PIN lock, and device secure, and for all activity occurring under your account.',
+        ),
+        _buildSectionHeader('2. What FlowCycle Provides'),
+        _buildParagraph(
+          'FlowCycle provides tools for menstrual cycle tracking, period history, fertile window and ovulation estimates, wellness and symptom tracking, intimacy observations, notes, reminders, data export, and AI informational assistance. Features may evolve over time.',
         ),
         _buildSectionHeader(
-          '2. Health Information & No Doctor-Patient Relationship',
+          '3. Not Medical Advice & No Doctor-Patient Relationship',
         ),
         _buildParagraph(
-          'Any insights, predictions, conception windows, or AI responses provided within FlowCycle are for general informational purposes only. They do not constitute formal medical diagnosis, treatment, or professional medical advice. Always consult a qualified physician or healthcare provider regarding any menstrual, fertility, or hormonal concerns.',
+          'Cycle calculations, predictions, fertile window estimates, symptom insights, and AI responses are educational estimates and may contain inaccuracies. Do not rely on FlowCycle to diagnose conditions, prevent or achieve pregnancy, replace birth control, or handle medical emergencies. Always consult a qualified healthcare professional.',
         ),
-        _buildSectionHeader('3. User Accounts & Security'),
+        _buildSectionHeader('4. Fertility & Reproductive Disclaimer'),
         _buildParagraph(
-          'You are responsible for safeguarding your login credentials and PIN locks. You agree to notify FlowCycle immediately of any unauthorized access to your account.',
+          'FlowCycle does not guarantee conception, pregnancy prevention, or specific reproductive outcomes. Calendar predictions can vary due to irregular cycles, stress, illness, medications, and hormonal fluctuations.',
         ),
-        _buildSectionHeader('4. Proprietary Algorithms & Content'),
+        _buildSectionHeader('5. AI Companion Guidelines'),
         _buildParagraph(
-          'All software, mathematical cycle models, visual ring designs, and UI assets are the exclusive intellectual property of FlowCycle. Unauthorized duplication or reverse engineering is strictly prohibited.',
+          'The AI Companion provides general educational support and guidance. AI responses are generated automatically, may be incomplete or inaccurate, and must never replace clinical medical advice or individualized diagnosis.',
         ),
-        _buildSectionHeader('5. Termination & Data Portability'),
+        _buildSectionHeader('6. User Content & Intellectual Property'),
         _buildParagraph(
-          'You may terminate your account at any time. Upon account deletion, all personal cycle records and health logs will be permanently purged from our databases in accordance with our Privacy Policy.',
+          'You retain full ownership of your logged cycle data, notes, and symptoms. FlowCycle\'s algorithms, predictive models, designs, branding, and interfaces are the exclusive intellectual property of FlowCycle.',
+        ),
+        _buildSectionHeader('7. Subscriptions, Termination & Deletion'),
+        _buildParagraph(
+          'In-app subscriptions and renewals are managed via your app store account (Apple App Store / Google Play). You may stop using the service and delete your account and associated data at any time.',
+        ),
+        _buildSectionHeader('8. Limitation of Liability & Contact'),
+        _buildParagraph(
+          'FlowCycle is provided on an "as is" and "as available" basis to the maximum extent permitted by applicable law. For questions about these Terms, contact legal@flowcycle.app or support@flowcycle.app.',
         ),
       ],
     );
@@ -249,36 +261,45 @@ class _AuthTermsAndPrivacySheetState extends State<AuthTermsAndPrivacySheet> {
           icon: Icons.lock_outline_rounded,
           title: 'Our Ironclad Zero-Data-Selling Pledge',
           body:
-              'We NEVER sell, monetize, rent, or share your intimate reproductive, period, or fertility data with advertisers, data brokers, or third parties. Period.',
+              'We NEVER sell, monetize, rent, or broker your intimate reproductive, period, fertility, or sexual health records to advertisers, data brokers, or third parties. Period.',
           accentColor: const Color(0xFF10B981),
           bgColor: const Color(0xFFEBFDF5),
         ),
         const SizedBox(height: 16),
-        _buildSectionHeader('1. Data We Collect'),
+        _buildSectionHeader('1. Information We Collect'),
         _buildParagraph(
-          'We collect only the information you explicitly provide to deliver cycle intelligence:\n'
-          '• Biological cycle parameters (cycle length, period duration, LMP date).\n'
-          '• Daily symptoms, cervical mucus observations, basal body temperature (BBT), and moods.\n'
-          '• Account email and hashed authentication credentials.',
+          'Depending on the features you use, FlowCycle may collect:\n'
+          '• Account Information: Name, email address, authentication credentials, and preferences.\n'
+          '• Cycle & Fertility Data: Period dates, cycle length, ovulation observations, fertile windows, symptoms, flow intensity, and pregnancy/TTC goals.\n'
+          '• Wellness & Intimacy (Optional): Mood, sleep, basal body temperature (BBT), workouts, notes, and intimacy observations.\n'
+          '• Device & Technical Data: Device type, operating system, app version, and minimized crash/diagnostic logs.',
         ),
-        _buildSectionHeader('2. End-to-End Encryption & Security Standards'),
+        _buildSectionHeader('2. How We Use Your Information'),
         _buildParagraph(
-          'All sensitive health entries are encrypted using industry-standard AES-256 encryption at rest and TLS 1.3 in transit. Only you hold the decryption keys to your personal health log.',
+          'We use your data solely to operate FlowCycle, maintain your account, calculate cycle phases and fertile windows, provide personalized insights and reminders, secure your account, and maintain backups.',
         ),
-        _buildSectionHeader('3. GDPR, CCPA & HIPAA Best-Practice Compliance'),
+        _buildSectionHeader('3. AI Companion Privacy Safeguards'),
         _buildParagraph(
-          'FlowCycle adheres strictly to international privacy frameworks:\n'
-          '• Right to Access: View and review all logged data at any time.\n'
-          '• Right to Portability: Export complete cycle history as formatted CSV or PDF reports.\n'
-          '• Right to Erasure: Instantly delete your profile and all associated data with 1 tap.',
+          'Interactions with the AI Companion are anonymized and processed securely. Your intimate health logs and prompts are NEVER used to train external public LLM models.',
         ),
-        _buildSectionHeader('4. AI Companion & Privacy Safeguards'),
+        _buildSectionHeader('4. How We Share Information'),
         _buildParagraph(
-          'Interactions with the AI Companion are anonymized. Health prompts are processed securely and are NEVER used to train external public LLM models.',
+          'We do not sell your health data. We share information only with essential, trusted service providers (cloud hosting, database infrastructure, security, authentication) bound by strict confidentiality agreements, or when required by applicable law.',
         ),
-        _buildSectionHeader('5. Privacy Officer Contact'),
+        _buildSectionHeader('5. Data Security & Storage'),
         _buildParagraph(
-          'For inquiries regarding our health privacy standards, reach our dedicated Data Protection Officer at privacy@flowcycle.app.',
+          'We implement industry-standard AES-256 encryption at rest, TLS 1.3 encryption in transit, device-first local storage, and in-app PIN/biometric locks to protect your confidential information.',
+        ),
+        _buildSectionHeader('6. Your Privacy Choices & Data Rights'),
+        _buildParagraph(
+          'In accordance with global privacy best practices (GDPR, CCPA):\n'
+          '• Access & Portability: Review and export your complete cycle history as PDF clinical reports or CSV files anytime.\n'
+          '• Erasure: Permanently delete your account and all associated health records with a single tap.\n'
+          '• Permissions: Control notification, biometric lock, and optional data permissions at any time.',
+        ),
+        _buildSectionHeader('7. Data Protection Contact'),
+        _buildParagraph(
+          'For inquiries regarding privacy, data rights, or security practices, contact our Data Protection Officer at privacy@flowcycle.app.',
         ),
       ],
     );

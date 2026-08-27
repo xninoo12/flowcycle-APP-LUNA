@@ -9,6 +9,7 @@ import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/providers/app_scope.dart';
+import '../../authentication/widgets/auth_terms_and_privacy_sheet.dart';
 import '../widgets/pin_lock_dialog.dart';
 
 /// Screen for managing PIN Passcode lock, discreet alerts, backups, export, and account deletion.
@@ -675,12 +676,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                   icon: Icons.shield_outlined,
                   iconColor: const Color(0xFF10B981),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'FlowCycle is 100% HIPAA and GDPR compliant 🛡️',
-                        ),
-                        backgroundColor: Color(0xFF10B981),
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (ctx) => const AuthTermsAndPrivacySheet(
+                        initialTabIndex: 1,
                       ),
                     );
                   },

@@ -64,8 +64,11 @@ void main() {
 
         // Terms of Service Tab
         expect(find.text('Terms & Conditions'), findsOneWidget);
-        expect(find.text('Medical Disclaimer & Scope of Use'), findsOneWidget);
-        expect(find.text('1. Acceptance of Terms'), findsOneWidget);
+        expect(
+          find.text('Medical Disclaimer & Educational Scope'),
+          findsOneWidget,
+        );
+        expect(find.text('1. Eligibility & Your Account'), findsOneWidget);
 
         // Switch to Privacy Policy Tab
         await tester.tap(find.text('Privacy Policy').first);
@@ -76,9 +79,9 @@ void main() {
           find.text('Our Ironclad Zero-Data-Selling Pledge'),
           findsOneWidget,
         );
-        expect(find.text('1. Data We Collect'), findsOneWidget);
+        expect(find.text('1. Information We Collect'), findsOneWidget);
         expect(
-          find.textContaining('End-to-End Encryption & Security Standards'),
+          find.textContaining('Data Security & Storage'),
           findsOneWidget,
         );
 

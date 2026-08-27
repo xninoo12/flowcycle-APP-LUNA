@@ -4,6 +4,8 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_styles.dart';
 
+import '../../authentication/widgets/auth_terms_and_privacy_sheet.dart';
+
 /// Bottom sheet displaying About FlowCycle metadata, version, terms, and medical disclaimer.
 class AboutFlowcycleSheet extends StatelessWidget {
   const AboutFlowcycleSheet({super.key});
@@ -153,12 +155,12 @@ class AboutFlowcycleSheet extends StatelessWidget {
                           color: Color(0xFF7A708A),
                         ),
                         onTap: () {
-                          try {
-                            Navigator.pop(context);
-                          } catch (_) {}
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Opening Terms of Service 📄'),
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (ctx) => const AuthTermsAndPrivacySheet(
+                              initialTabIndex: 0,
                             ),
                           );
                         },
@@ -183,12 +185,12 @@ class AboutFlowcycleSheet extends StatelessWidget {
                           color: Color(0xFF7A708A),
                         ),
                         onTap: () {
-                          try {
-                            Navigator.pop(context);
-                          } catch (_) {}
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Opening Privacy Policy 🛡️'),
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (ctx) => const AuthTermsAndPrivacySheet(
+                              initialTabIndex: 1,
                             ),
                           );
                         },
