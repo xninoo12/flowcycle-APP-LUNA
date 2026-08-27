@@ -96,9 +96,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // 3. Save Log
-      await tester.ensureVisible(find.text('Save Log'));
+      final saveBtn = find.text("Save Today's Log");
+      await tester.ensureVisible(saveBtn);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Save Log'));
+      await tester.tap(saveBtn);
       await tester.pumpAndSettle();
 
       // Verify log was saved to controller

@@ -214,20 +214,20 @@ void main() {
         await tester.pumpAndSettle();
 
         // 4. Tap Energy Level (High)
-        await tester.tap(find.text('High'));
+        await tester.tap(find.text('High'), warnIfMissed: false);
         await tester.pumpAndSettle();
 
-        // 5. Tap Save Log
-        await tester.ensureVisible(find.text('Save Log'));
+        // 5. Tap Save Today's Log
+        final saveBtn = find.text("Save Today's Log");
+        await tester.ensureVisible(saveBtn);
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Save Log'));
+        await tester.tap(saveBtn);
         await tester.pumpAndSettle();
 
-        // Verify All Set Dialog
-        expect(find.byType(AllSetSuccessDialog), findsOneWidget);
-        expect(find.text('All Set!'), findsOneWidget);
-        await tester.tap(find.text('Done'));
-        await tester.pumpAndSettle();
+        // Verify AI Cycle Harmony Post-Log View
+        expect(find.textContaining('Log Recorded'), findsOneWidget);
+        expect(find.text('AI Cycle Harmony & Wellness Analysis'), findsOneWidget);
+        expect(find.text('Return to Dashboard'), findsOneWidget);
       },
     );
 

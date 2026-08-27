@@ -3,15 +3,12 @@ import '../../core/data/app_data_manager.dart';
 import '../../shared/models/app_mode.dart';
 import '../../shared/models/daily_log_entry.dart';
 import '../../shared/providers/app_scope.dart';
-import 'widgets/all_set_success_dialog.dart';
+import 'widgets/ai_cycle_harmony_post_log_view.dart';
 import 'widgets/bbt_temperature_field.dart';
 import 'widgets/cervical_mucus_selector.dart';
 import 'widgets/flow_intensity_selector.dart';
 import 'widgets/intimacy_section.dart';
 import 'widgets/lh_and_pregnancy_test_section.dart';
-import 'widgets/log_date_field.dart';
-import 'widgets/log_insights_analysis_sheet.dart';
-import 'widgets/log_modal_header.dart';
 import 'widgets/mood_selector_row.dart';
 import 'widgets/nutrition_and_cravings_section.dart';
 import 'widgets/self_care_section.dart';
@@ -20,11 +17,11 @@ import 'widgets/symptom_glossary_sheet.dart';
 import 'widgets/symptoms_chips_selector.dart';
 import 'widgets/workout_chips_selector.dart';
 
-/// Primary Daily Log Modal / Screen matching exact specifications from design reference.
+/// Primary Daily Log Screen matching the exact reference UI specifications.
 ///
-/// Features a Dual-Mode Adaptive architecture that dynamically tailors its clinical
-/// logging sections, biomarkers, and AI feedback to either Trying to Conceive (TTC)
-/// or Cycle Awareness mode.
+/// Features a Dual-Mode Adaptive architecture across Cycle Awareness and TTC modes,
+/// color-coded grouped sections (TODAY, BODY, LIFESTYLE, NOTES), and an automated
+/// AI Cycle Harmony & Wellness Analysis post-save workflow with phase-smart rerouting.
 class DailyLogScreen extends StatefulWidget {
   final bool isModal;
   final VoidCallback? onClose;
@@ -67,6 +64,7 @@ class _DailyLogScreenState extends State<DailyLogScreen> {
   final TextEditingController _notesController = TextEditingController();
 
   bool _initialized = false;
+  DailyLogEntry? _savedLogEntry;
 
   @override
   void initState() {
@@ -188,34 +186,6 @@ class _DailyLogScreenState extends State<DailyLogScreen> {
     );
   }
 
-  void _openAiAnalysisSheet(DailyLogEntry logEntry, AppMode mode) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => LogInsightsAnalysisSheet(entry: logEntry, mode: mode),
-    );
-  }
-
-  String _formatDateString(DateTime date) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final monthName = months[date.month - 1];
-    return '$monthName ${date.day}, ${date.year}';
-  }
-
   void _handleSaveLog() {
     String moodSummary = 'Good';
     switch (_selectedMood) {
@@ -281,7 +251,7 @@ class _DailyLogScreenState extends State<DailyLogScreen> {
       energyLevel: energySummary,
       intercourse: isTtc
           ? _intimacyStatus.contains('Unprotected') ||
-                _intimacyStatus.contains('Protected')
+              _intimacyStatus.contains('Protected')
           : flowSummary != 'Heavy',
       cervicalMucus: _selectedMucus,
       bbtTemperature: _bbtTemperature,
@@ -299,21 +269,28 @@ class _DailyLogScreenState extends State<DailyLogScreen> {
     controller.saveLogEntry(logEntry);
     AppDataManager.instance.handleDailyLogEntry(logEntry);
 
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (ctx) => AllSetSuccessDialog(
-        moodText: moodSummary,
-        flowText: flowSummary,
-        sleepText: '7h 30m',
-        energyText: energySummary,
-        onViewLog: () {
-          Navigator.of(ctx).pop();
-          _openAiAnalysisSheet(logEntry, controller.currentMode);
-        },
-        onDone: () => Navigator.of(ctx).pop(),
-      ),
-    );
+    // Automatically transition to the AI Cycle Harmony & Wellness Analysis Screen
+    setState(() {
+      _savedLogEntry = logEntry;
+    });
+  }
+
+  String _formatDateString(DateTime date) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   @override
@@ -322,6 +299,19 @@ class _DailyLogScreenState extends State<DailyLogScreen> {
     final isTtc = controller.currentMode == AppMode.tryingToConceive;
     final dateString = _formatDateString(_selectedDate);
 
+    // If log has been saved, display the Automated AI Cycle Harmony & Wellness Analysis View
+    if (_savedLogEntry != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFFAF7F2),
+        body: SafeArea(
+          child: AiCycleHarmonyPostLogView(
+            logEntry: _savedLogEntry!,
+            onClose: widget.onClose,
+          ),
+        ),
+      );
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -329,318 +319,545 @@ class _DailyLogScreenState extends State<DailyLogScreen> {
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Column(
-          children: [
-            // Top Modal Header with drag handle, title, guide icon, and close button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 8.0),
-              child: Row(
-                children: [
-                  Expanded(child: LogModalHeader(onClose: widget.onClose)),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.menu_book_outlined,
-                      color: Color(0xFF7C5CE7),
-                      size: 20,
-                    ),
-                    tooltip: 'Symptom & Mucus Guide',
-                    onPressed: _openGlossarySheet,
-                  ),
-                ],
-              ),
-            ),
-
-            const Divider(height: 1.0, color: Color(0xFFF2EDF7)),
-
-            // Single-Scroll Compact Body
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 12.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Top Header: (X) Close, ✨ Log Your Day ✨, (📖) Guide Book
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Mode-Adaptive Hero Banner
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
+                    IconButton(
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: Color(0xFF7A708A),
+                        size: 22.0,
                       ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: isTtc
-                              ? [
-                                  const Color(0xFFFFF0F5),
-                                  const Color(0xFFFDE8EF),
-                                ]
-                              : [
-                                  const Color(0xFFF5F3FF),
-                                  const Color(0xFFECEBFE),
-                                ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isTtc
-                              ? const Color(0xFFFBCFE8)
-                              : const Color(0xFFDDD6FE),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            isTtc ? '💗' : '✨',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              isTtc
-                                  ? 'Trying to Conceive Mode • Peak Fertile Tracking'
-                                  : 'Cycle Awareness Mode • Daily Energy & Syncing',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w800,
-                                color: isTtc
-                                    ? const Color(0xFF9D174D)
-                                    : const Color(0xFF5B21B6),
+                      onPressed: widget.onClose ??
+                          () => Navigator.of(context).maybePop(),
+                    ),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('✨', style: TextStyle(fontSize: 14.0)),
+                              SizedBox(width: 4.0),
+                              Flexible(
+                                child: Text(
+                                  'Log Your Day',
+                                  style: TextStyle(
+                                    fontFamily: 'serif',
+                                    fontSize: 21.0,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF1E1A3C),
+                                    letterSpacing: -0.4,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
+                              SizedBox(width: 4.0),
+                              Text('✨', style: TextStyle(fontSize: 14.0)),
+                            ],
+                          ),
+                          SizedBox(height: 2.0),
+                          Text(
+                            'Track how you feel and care for your body',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF7A708A),
                             ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 14.0),
-
-                    // 1. Date Field
-                    LogDateField(
-                      dateText: dateString,
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDate,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2030),
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            _selectedDate = picked;
-                            _loadExistingLog();
-                          });
-                        }
-                      },
+                    IconButton(
+                      icon: const Icon(
+                        Icons.menu_book_rounded,
+                        color: Color(0xFFFF4D79),
+                        size: 22.0,
+                      ),
+                      tooltip: 'Symptom & Mucus Guide',
+                      onPressed: _openGlossarySheet,
                     ),
+                  ],
+                ),
+              ),
 
-                    const SizedBox(height: 14.0),
+              const Divider(height: 1.0, color: Color(0xFFF1ECF5)),
 
-                    // 2. How are you feeling? (Mood)
-                    MoodSelectorRow(
-                      selectedMood: _selectedMood,
-                      onMoodChanged: (mood) =>
-                          setState(() => _selectedMood = mood),
-                    ),
-
-                    const SizedBox(height: 14.0),
-
-                    // 3. Flow Intensity
-                    FlowIntensitySelector(
-                      selectedFlow: _selectedFlow,
-                      onFlowChanged: (flow) =>
-                          setState(() => _selectedFlow = flow),
-                    ),
-
-                    const SizedBox(height: 14.0),
-
-                    // 4. Mode-Specific Logging Fields
-                    if (isTtc) ...[
-                      // TTC: Cervical Mucus Selector
-                      CervicalMucusSelector(
-                        selectedMucus: _selectedMucus,
-                        onMucusChanged: (val) =>
-                            setState(() => _selectedMucus = val),
-                        onInfoTap: _openGlossarySheet,
-                      ),
-
-                      const SizedBox(height: 14.0),
-
-                      // TTC: Basal Body Temperature (BBT)
-                      BbtTemperatureField(
-                        temperature: _bbtTemperature,
-                        onTemperatureChanged: (val) =>
-                            setState(() => _bbtTemperature = val),
-                      ),
-
-                      const SizedBox(height: 14.0),
-
-                      // TTC: LH & HCG Strip Tests
-                      LhAndPregnancyTestSection(
-                        lhResult: _lhResult,
-                        hcgResult: _hcgResult,
-                        onLhChanged: (val) => setState(() => _lhResult = val),
-                        onHcgChanged: (val) => setState(() => _hcgResult = val),
-                      ),
-
-                      const SizedBox(height: 14.0),
-
-                      // TTC: Intimacy & Supplements
-                      IntimacySection(
-                        intimacyStatus: _intimacyStatus,
-                        selectedSupplements: _selectedSupplements,
-                        onIntimacyChanged: (val) =>
-                            setState(() => _intimacyStatus = val),
-                        onToggleSupplement: (sup) {
-                          setState(() {
-                            if (_selectedSupplements.contains(sup)) {
-                              _selectedSupplements.remove(sup);
-                            } else {
-                              _selectedSupplements.add(sup);
-                            }
-                          });
-                        },
-                      ),
-                    ] else ...[
-                      // Cycle Awareness: Workouts
-                      WorkoutChipsSelector(
-                        selectedWorkout: _selectedWorkout,
-                        onWorkoutChanged: (val) =>
-                            setState(() => _selectedWorkout = val),
-                      ),
-
-                      const SizedBox(height: 14.0),
-
-                      // Cycle Awareness: Hydration & Cravings
-                      NutritionAndCravingsSection(
-                        waterGlasses: _waterGlasses,
-                        selectedCravings: _selectedCravings,
-                        onWaterChanged: (val) =>
-                            setState(() => _waterGlasses = val),
-                        onToggleCraving: (crav) {
-                          setState(() {
-                            if (_selectedCravings.contains(crav)) {
-                              _selectedCravings.remove(crav);
-                            } else {
-                              _selectedCravings.add(crav);
-                            }
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 14.0),
-
-                      // Cycle Awareness: Self-Care
-                      SelfCareSection(
-                        selectedSelfCare: _selectedSelfCare,
-                        onToggleSelfCare: (item) {
-                          setState(() {
-                            if (_selectedSelfCare.contains(item)) {
-                              _selectedSelfCare.remove(item);
-                            } else {
-                              _selectedSelfCare.add(item);
-                            }
-                          });
-                        },
-                      ),
-                    ],
-
-                    const SizedBox(height: 14.0),
-
-                    // 5. Symptoms Multi-select (Both modes)
-                    SymptomsChipsSelector(
-                      selectedSymptoms: _selectedSymptoms,
-                      onToggleSymptom: _toggleSymptom,
-                      onAddCustomSymptom: (newSym) {
-                        setState(() => _selectedSymptoms.add(newSym));
-                      },
-                    ),
-
-                    const SizedBox(height: 14.0),
-
-                    // 6. Sleep Quality & Energy Level
-                    SleepAndEnergySection(
-                      sleepRating: _sleepRating,
-                      sleepDurationText: '7h 30m',
-                      energyLevel: _energyLevel,
-                      onSleepRatingChanged: (rating) =>
-                          setState(() => _sleepRating = rating),
-                      onEnergyLevelChanged: (level) =>
-                          setState(() => _energyLevel = level),
-                    ),
-
-                    const SizedBox(height: 14.0),
-
-                    // 7. Personal Journal Notes
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
+              // 2. Scrollable Body with Grouped Sections
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18.0,
+                    vertical: 12.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Mode Banner Card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14.0,
+                          vertical: 12.0,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: isTtc
+                                ? [
+                                    const Color(0xFFFFF0F5),
+                                    const Color(0xFFFFEEF3)
+                                  ]
+                                : [
+                                    const Color(0xFFFDF2F8),
+                                    const Color(0xFFFAF5FF)
+                                  ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16.0),
+                          border: Border.all(
+                            color: isTtc
+                                ? const Color(0xFFFFD4E2)
+                                : const Color(0xFFF1D5EA),
+                            width: 1.2,
+                          ),
+                        ),
+                        child: Row(
                           children: [
-                            Text('📝', style: TextStyle(fontSize: 14)),
-                            SizedBox(width: 6),
-                            Text(
-                              'Personal Notes & Reflections',
-                              style: TextStyle(
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E1A3C),
+                            Container(
+                              width: 38.0,
+                              height: 38.0,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: isTtc
+                                      ? [
+                                          const Color(0xFFFF4D79),
+                                          const Color(0xFFFF85A2)
+                                        ]
+                                      : [
+                                          const Color(0xFFD946EF),
+                                          const Color(0xFF8B5CF6)
+                                        ],
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  isTtc ? '👶' : '✨',
+                                  style: const TextStyle(fontSize: 18.0),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    isTtc
+                                        ? 'Trying to Conceive Mode'
+                                        : 'Cycle Awareness Mode',
+                                    style: TextStyle(
+                                      fontSize: 13.0,
+                                      fontWeight: FontWeight.w800,
+                                      color: isTtc
+                                          ? const Color(0xFFE11D48)
+                                          : const Color(0xFFD946EF),
+                                    ),
+                                  ),
+                                  Text(
+                                    isTtc
+                                        ? 'Fertility & Biomarkers'
+                                        : 'Daily Energy & Syncing',
+                                    style: const TextStyle(
+                                      fontSize: 11.0,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF7A708A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: _openGlossarySheet,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Learn more',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: isTtc
+                                          ? const Color(0xFFE11D48)
+                                          : const Color(0xFFD946EF),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2.0),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 11.0,
+                                    color: isTtc
+                                        ? const Color(0xFFE11D48)
+                                        : const Color(0xFFD946EF),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        TextField(
-                          controller: _notesController,
-                          maxLines: 2,
-                          decoration: InputDecoration(
-                            hintText:
-                                'Add symptoms, sensations, doctor notes...',
-                            hintStyle: const TextStyle(
-                              fontSize: 11.5,
-                              color: Color(0xFFAAA3B8),
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xFFFAF8FC),
-                            contentPadding: const EdgeInsets.all(12),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFEFE9F3),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFEFE9F3),
-                              ),
-                            ),
+                      ),
+
+                      const SizedBox(height: 12.0),
+
+                      // Date Card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14.0,
+                          vertical: 12.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16.0),
+                          border: Border.all(
+                            color: const Color(0xFFF1ECF5),
+                            width: 1.0,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1E1A3C)
+                                  .withValues(alpha: 0.03),
+                              blurRadius: 8.0,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF0F5),
+                                borderRadius: BorderRadius.circular(10.0),
+                                border: Border.all(
+                                  color: const Color(0xFFFFD4E2),
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.calendar_today_rounded,
+                                color: Color(0xFFFF4D79),
+                                size: 18.0,
+                              ),
+                            ),
+                            const SizedBox(width: 12.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Date',
+                                    style: TextStyle(
+                                      fontSize: 11.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF7A708A),
+                                    ),
+                                  ),
+                                  Text(
+                                    dateString,
+                                    style: const TextStyle(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF1E1A3C),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.calendar_month_outlined,
+                                color: Color(0xFF7A708A),
+                                size: 22.0,
+                              ),
+                              onPressed: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _selectedDate,
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2030),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _selectedDate = picked;
+                                    _loadExistingLog();
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 18.0),
+
+                      // ==========================================
+                      // 1. TODAY SECTION (Coral / Pink)
+                      // ==========================================
+                      _buildSectionDivider('TODAY', const Color(0xFFFF3B69)),
+                      const SizedBox(height: 12.0),
+
+                      // Feeling Emojis Row
+                      MoodSelectorRow(
+                        selectedMood: _selectedMood,
+                        onMoodChanged: (mood) =>
+                            setState(() => _selectedMood = mood),
+                      ),
+
+                      const SizedBox(height: 14.0),
+
+                      // Flow Drops Row
+                      FlowIntensitySelector(
+                        selectedFlow: _selectedFlow,
+                        onFlowChanged: (flow) =>
+                            setState(() => _selectedFlow = flow),
+                      ),
+
+                      const SizedBox(height: 18.0),
+
+                      // ==========================================
+                      // 2. BODY SECTION (Purple)
+                      // ==========================================
+                      _buildSectionDivider('BODY', const Color(0xFF8B5CF6)),
+                      const SizedBox(height: 12.0),
+
+                      // Symptoms Chips
+                      SymptomsChipsSelector(
+                        selectedSymptoms: _selectedSymptoms,
+                        onToggleSymptom: _toggleSymptom,
+                        onAddCustomSymptom: (newSym) {
+                          setState(() => _selectedSymptoms.add(newSym));
+                        },
+                      ),
+
+                      if (isTtc) ...[
+                        const SizedBox(height: 14.0),
+
+                        // TTC: Cervical Mucus Selector
+                        CervicalMucusSelector(
+                          selectedMucus: _selectedMucus,
+                          onMucusChanged: (val) =>
+                              setState(() => _selectedMucus = val),
+                          onInfoTap: _openGlossarySheet,
+                        ),
+
+                        const SizedBox(height: 14.0),
+
+                        // TTC: Basal Body Temperature (BBT)
+                        BbtTemperatureField(
+                          temperature: _bbtTemperature,
+                          onTemperatureChanged: (val) =>
+                              setState(() => _bbtTemperature = val),
+                        ),
+
+                        const SizedBox(height: 14.0),
+
+                        // TTC: LH & HCG Tests
+                        LhAndPregnancyTestSection(
+                          lhResult: _lhResult,
+                          hcgResult: _hcgResult,
+                          onLhChanged: (val) => setState(() => _lhResult = val),
+                          onHcgChanged: (val) => setState(() => _hcgResult = val),
+                        ),
+
+                        const SizedBox(height: 14.0),
+
+                        // TTC: Intimacy
+                        IntimacySection(
+                          intimacyStatus: _intimacyStatus,
+                          selectedSupplements: _selectedSupplements,
+                          onIntimacyChanged: (val) =>
+                              setState(() => _intimacyStatus = val),
+                          onToggleSupplement: (sup) {
+                            setState(() {
+                              if (_selectedSupplements.contains(sup)) {
+                                _selectedSupplements.remove(sup);
+                              } else {
+                                _selectedSupplements.add(sup);
+                              }
+                            });
+                          },
                         ),
                       ],
-                    ),
 
-                    const SizedBox(height: 20.0),
+                      const SizedBox(height: 18.0),
 
-                    // 8. "Save Log" Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 46.0,
-                      child: Container(
+                      // ==========================================
+                      // 3. LIFESTYLE SECTION (Blue)
+                      // ==========================================
+                      _buildSectionDivider('LIFESTYLE', const Color(0xFF3B82F6)),
+                      const SizedBox(height: 12.0),
+
+                      if (!isTtc) ...[
+                        // Workout Selector
+                        WorkoutChipsSelector(
+                          selectedWorkout: _selectedWorkout,
+                          onWorkoutChanged: (val) =>
+                              setState(() => _selectedWorkout = val),
+                        ),
+
+                        const SizedBox(height: 12.0),
+
+                        // Hydration & Cravings
+                        NutritionAndCravingsSection(
+                          waterGlasses: _waterGlasses,
+                          selectedCravings: _selectedCravings,
+                          onWaterChanged: (val) =>
+                              setState(() => _waterGlasses = val),
+                          onToggleCraving: (crav) {
+                            setState(() {
+                              if (_selectedCravings.contains(crav)) {
+                                _selectedCravings.remove(crav);
+                              } else {
+                                _selectedCravings.add(crav);
+                              }
+                            });
+                          },
+                        ),
+
+                        const SizedBox(height: 12.0),
+
+                        // Self-Care
+                        SelfCareSection(
+                          selectedSelfCare: _selectedSelfCare,
+                          onToggleSelfCare: (item) {
+                            setState(() {
+                              if (_selectedSelfCare.contains(item)) {
+                                _selectedSelfCare.remove(item);
+                              } else {
+                                _selectedSelfCare.add(item);
+                              }
+                            });
+                          },
+                        ),
+                      ],
+
+                      // Sleep & Energy Level
+                      const SizedBox(height: 12.0),
+                      SleepAndEnergySection(
+                        sleepRating: _sleepRating,
+                        sleepDurationText: '7h 30m',
+                        energyLevel: _energyLevel,
+                        onSleepRatingChanged: (rating) =>
+                            setState(() => _sleepRating = rating),
+                        onEnergyLevelChanged: (level) =>
+                            setState(() => _energyLevel = level),
+                      ),
+
+                      const SizedBox(height: 18.0),
+
+                      // ==========================================
+                      // 4. NOTES SECTION (Orange)
+                      // ==========================================
+                      _buildSectionDivider('NOTES', const Color(0xFFF97316)),
+                      const SizedBox(height: 12.0),
+
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16.0),
+                          border: Border.all(
+                            color: const Color(0xFFF1ECF5),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(
+                                  Icons.edit_note_rounded,
+                                  color: Color(0xFFF97316),
+                                  size: 18.0,
+                                ),
+                                SizedBox(width: 6.0),
+                                Text(
+                                  'NOTES / JOURNAL',
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF1E1A3C),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8.0),
+                            TextField(
+                              controller: _notesController,
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                hintText:
+                                    'Anything you want to remember? Sensations, doctor notes...',
+                                hintStyle: const TextStyle(
+                                  fontSize: 12.0,
+                                  color: Color(0xFFAAA3B8),
+                                ),
+                                filled: true,
+                                fillColor: const Color(0xFFFAF8FC),
+                                contentPadding: const EdgeInsets.all(12.0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFEFE9F3),
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFEFE9F3),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24.0),
+
+                      // 5. "✨ Save Today's Log" Bottom Gradient Button
+                      Container(
+                        width: double.infinity,
+                        height: 52.0,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF9D84EB), Color(0xFF7C5CE7)],
+                            colors: [Color(0xFFFF4D79), Color(0xFF8B5CF6)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(14.0),
+                          borderRadius: BorderRadius.circular(18.0),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(
-                                0xFF7C5CE7,
-                              ).withValues(alpha: 0.35),
-                              blurRadius: 10.0,
-                              offset: const Offset(0, 3),
+                              color: const Color(0xFFFF4D79)
+                                  .withValues(alpha: 0.35),
+                              blurRadius: 14.0,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
@@ -650,31 +867,79 @@ class _DailyLogScreenState extends State<DailyLogScreen> {
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14.0),
+                              borderRadius: BorderRadius.circular(18.0),
                             ),
                           ),
-                          child: const Text(
-                            'Save Log',
-                            style: TextStyle(
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 0.2,
-                            ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('✨', style: TextStyle(fontSize: 16.0)),
+                              SizedBox(width: 8.0),
+                              Text(
+                                "Save Today's Log",
+                                style: TextStyle(
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16.0),
-                  ],
+                      const SizedBox(height: 24.0),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  Widget _buildSectionDivider(String title, Color color) {
+    return Row(
+      children: [
+        Expanded(
+          child: Divider(
+            color: color.withValues(alpha: 0.25),
+            thickness: 1.2,
+          ),
+        ),
+        const SizedBox(width: 6.0),
+        Container(
+          width: 5.0,
+          height: 5.0,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6.0),
+        Text(
+          title,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w900,
+            fontSize: 12.0,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(width: 6.0),
+        Container(
+          width: 5.0,
+          height: 5.0,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6.0),
+        Expanded(
+          child: Divider(
+            color: color.withValues(alpha: 0.25),
+            thickness: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
 }

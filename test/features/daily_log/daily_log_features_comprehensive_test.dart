@@ -354,17 +354,17 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.text('Trying to Conceive Mode • Peak Fertile Tracking'),
+          find.textContaining('Trying to Conceive Mode'),
           findsOneWidget,
         );
         expect(find.text('Cervical Fluid / Mucus'), findsOneWidget);
         expect(find.text('Basal Body Temperature (BBT)'), findsOneWidget);
         expect(find.text('Ovulation Test (LH Strip)'), findsOneWidget);
         expect(find.text('Intimacy & Timing'), findsOneWidget);
-        expect(find.text('Personal Notes & Reflections'), findsOneWidget);
+        expect(find.text('NOTES / JOURNAL'), findsOneWidget);
 
         // Scroll to Save button and tap
-        final saveBtn = find.text('Save Log');
+        final saveBtn = find.text("Save Today's Log");
         await tester.scrollUntilVisible(
           saveBtn,
           200,
@@ -373,7 +373,8 @@ void main() {
         await tester.tap(saveBtn);
         await tester.pumpAndSettle();
 
-        expect(find.text('All Set!'), findsOneWidget);
+        expect(find.textContaining('Log Recorded'), findsOneWidget);
+        expect(find.text('AI Cycle Harmony & Wellness Analysis'), findsOneWidget);
       },
     );
 
@@ -391,16 +392,16 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.text('Cycle Awareness Mode • Daily Energy & Syncing'),
+          find.textContaining('Cycle Awareness Mode'),
           findsOneWidget,
         );
-        expect(find.text('Cycle-Synced Workout & Movement'), findsOneWidget);
-        expect(find.text('Hydration (Water Intake)'), findsOneWidget);
-        expect(find.text('Food Cravings & Appetite'), findsOneWidget);
-        expect(find.text('Self-Care & Mindfulness'), findsOneWidget);
+        expect(find.textContaining('Workout & Movement'), findsOneWidget);
+        expect(find.textContaining('Hydration'), findsOneWidget);
+        expect(find.textContaining('Food Cravings'), findsOneWidget);
+        expect(find.textContaining('Self-Care'), findsOneWidget);
 
         // Scroll to Save button and tap
-        final saveBtn = find.text('Save Log');
+        final saveBtn = find.text("Save Today's Log");
         await tester.scrollUntilVisible(
           saveBtn,
           200,
@@ -409,7 +410,8 @@ void main() {
         await tester.tap(saveBtn);
         await tester.pumpAndSettle();
 
-        expect(find.text('All Set!'), findsOneWidget);
+        expect(find.textContaining('Log Recorded'), findsOneWidget);
+        expect(find.text('AI Cycle Harmony & Wellness Analysis'), findsOneWidget);
       },
     );
   });
