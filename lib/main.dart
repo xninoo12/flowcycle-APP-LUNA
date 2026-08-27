@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flowcycle/app/router/app_router.dart';
 import 'package:flowcycle/core/data/app_data_manager.dart';
@@ -10,6 +11,11 @@ import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase initialization notice: $e (running in local/offline fallback mode)');
+  }
   await AppDataManager.instance.initialize();
   runApp(const FlowCycleApp());
 }

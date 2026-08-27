@@ -63,6 +63,9 @@ void main() {
     });
 
     test('4. Sends password reset email and handles sign out', () async {
+      final invalidEmailResult = await authService.sendPasswordResetEmail('invalid');
+      expect(invalidEmailResult.isSuccess, isFalse);
+
       final resetResult = await authService.sendPasswordResetEmail(
         'amina@flowcycle.app',
       );
@@ -71,6 +74,28 @@ void main() {
       await authService.signOut();
       expect(authService.isAuthenticated, isFalse);
       expect(authService.currentUser, isNull);
+    });
+
+    test('5. Updates display name and social provider resolution', () async {
+      await authService.registerWithEmailAndPassword(
+        email: 'test@flowcycle.app',
+        password: 'password123',
+        name: 'Initial Name',
+      );
+
+      await authService.updateDisplayName('Updated Name');
+      expect(authService.currentUser?.displayName, 'Updated Name');
+
+      final socialResult = await authService.signInWithSocialProvider('Google');
+      expect(socialResult.isSuccess, isTrue);
+
+      final appleResult = await authService.signInWithSocialProvider('Apple');
+      expect(appleResult.isSuccess, isTrue);
+    });
+
+    test('6. initFirebase handles headless/offline initialization gracefully', () async {
+      await authService.initFirebase();
+      expect(authService.isFirebaseAvailable, isFalse);
     });
   });
 }

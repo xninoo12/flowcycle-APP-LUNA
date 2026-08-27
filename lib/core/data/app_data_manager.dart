@@ -30,7 +30,7 @@ class AppDataManager extends ChangeNotifier {
 
   /// Initializes the unified data pipeline, local database, and auth listener.
   Future<void> initialize({String? customStoragePath}) async {
-    if (_isInitialized) return;
+    await AuthService.instance.initFirebase();
 
     await LocalDatabaseService.instance.initialize(
       customPath: customStoragePath,
