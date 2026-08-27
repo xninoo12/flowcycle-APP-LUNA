@@ -34,7 +34,6 @@ class MainShell extends StatelessWidget {
     final theme = context.flowTheme;
     final cycleState = controller.calculateCurrentCycleState();
     final phase = cycleState.phase;
-    final auraColors = PhaseAmbientAura.getAuraColors(phase);
     final primaryAura = theme.isDark
         ? theme.accent
         : PhaseAmbientAura.getPrimaryAuraColor(phase);

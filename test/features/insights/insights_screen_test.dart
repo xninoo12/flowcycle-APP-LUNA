@@ -7,7 +7,6 @@ import 'package:flowcycle/features/insights/widgets/fertility_year_chart_card.da
 import 'package:flowcycle/features/insights/widgets/insights_category_tabs.dart';
 import 'package:flowcycle/features/insights/widgets/insights_header.dart';
 import 'package:flowcycle/features/insights/widgets/intercourse_and_symptoms_row.dart';
-import 'package:flowcycle/shared/models/user_profile.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';
 import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
 

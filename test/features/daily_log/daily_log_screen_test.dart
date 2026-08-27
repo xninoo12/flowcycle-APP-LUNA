@@ -4,10 +4,8 @@ import 'package:flowcycle/features/daily_log/daily_log_screen.dart';
 import 'package:flowcycle/features/daily_log/widgets/ai_cycle_harmony_post_log_view.dart';
 import 'package:flowcycle/features/daily_log/widgets/flow_intensity_selector.dart';
 import 'package:flowcycle/features/daily_log/widgets/mood_selector_row.dart';
-import 'package:flowcycle/features/daily_log/widgets/sleep_and_energy_section.dart';
 import 'package:flowcycle/features/daily_log/widgets/symptoms_chips_selector.dart';
 import 'package:flowcycle/shared/models/app_mode.dart';
-import 'package:flowcycle/shared/models/user_profile.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';
 import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
 

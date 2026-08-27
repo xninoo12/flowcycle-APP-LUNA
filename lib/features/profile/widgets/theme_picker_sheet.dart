@@ -157,7 +157,8 @@ class _ThemePickerSheetState extends State<ThemePickerSheet> {
             child: ListView.separated(
               padding: const EdgeInsets.all(20.0),
               itemCount: _themes.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10.0),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: 10.0),
               itemBuilder: (context, index) {
                 final item = _themes[index];
                 final isSelected = _selected == item['id'];

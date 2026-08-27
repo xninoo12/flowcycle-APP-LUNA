@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_gradients.dart';
-import '../../../core/theme/app_spacing.dart';
 import '../../../shared/providers/app_scope.dart';
 import '../../../shared/providers/cycle_data_controller.dart';
 import '../../../shared/widgets/buttons/primary_button.dart';
@@ -192,7 +191,8 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: _avatars.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 10.0),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 10.0),
                       itemBuilder: (context, index) {
                         final isSelected = _selectedAvatarIndex == index;
                         return GestureDetector(

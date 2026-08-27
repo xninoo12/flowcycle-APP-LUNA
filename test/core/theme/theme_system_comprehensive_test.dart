@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flowcycle/core/theme/app_theme.dart';
 import 'package:flowcycle/core/theme/app_gradients.dart';
-import 'package:flowcycle/core/theme/flow_cycle_theme_extension.dart';
 import 'package:flowcycle/features/profile/widgets/appearance_theme_card.dart';
 import 'package:flowcycle/features/profile/widgets/theme_picker_sheet.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';

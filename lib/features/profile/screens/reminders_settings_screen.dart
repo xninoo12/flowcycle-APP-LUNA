@@ -284,7 +284,7 @@ class _RemindersSettingsScreenState extends State<RemindersSettingsScreen> {
                     ),
                     Switch.adaptive(
                       value: _discreetMode,
-                      activeColor: const Color(0xFF10B981),
+                      activeTrackColor: const Color(0xFF10B981),
                       onChanged: (v) {
                         setState(() => _discreetMode = v);
                         _syncNotificationService();

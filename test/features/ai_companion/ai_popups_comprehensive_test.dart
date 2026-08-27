@@ -4,11 +4,9 @@ import 'package:flowcycle/features/ai_companion/ai_companion_screen.dart';
 import 'package:flowcycle/features/ai_companion/chat/widgets/ai_quick_chat_sheet.dart';
 import 'package:flowcycle/features/ai_companion/widgets/ai_chat_history_sheet.dart';
 import 'package:flowcycle/features/ai_companion/widgets/ai_medical_disclaimer_sheet.dart';
-import 'package:flowcycle/features/ai_companion/widgets/ai_prompt_explorer_sheet.dart';
 import 'package:flowcycle/features/ai_companion/widgets/ai_today_insight_detail_sheet.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';
 import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
-import 'package:flowcycle/shared/widgets/buttons/primary_button.dart';
 
 void main() {
   group('AI Companion Screen Popups & Modal Sheets Comprehensive Test Suite', () {
@@ -84,8 +82,16 @@ void main() {
       // Select conversation
       await tester.tap(find.text('Basal Body Temperature & Ovulation Shift'));
       await tester.pumpAndSettle();
-
       expect(selectedChat, 'Basal Body Temperature & Ovulation Shift');
+
+      // Test New Chat Button if available
+      if (find.byIcon(Icons.add_comment_rounded).evaluate().isNotEmpty) {
+        await tester.tap(find.byIcon(Icons.add_comment_rounded));
+        await tester.pumpAndSettle();
+        expect(newChatTriggered, isTrue);
+      } else {
+        expect(newChatTriggered, isFalse);
+      }
     });
 
     testWidgets('3. AiMedicalDisclaimerSheet: renders safety notices & acknowledges', (

@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../app/router/route_names.dart';
 import '../../core/data/app_data_manager.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_gradients.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/flow_cycle_theme_extension.dart';
 import '../../shared/models/app_mode.dart';

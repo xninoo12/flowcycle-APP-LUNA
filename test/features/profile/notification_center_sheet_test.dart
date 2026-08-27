@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flowcycle/core/services/notification_service.dart';
 import 'package:flowcycle/features/profile/widgets/notification_center_sheet.dart';
 import 'package:flowcycle/shared/models/app_mode.dart';
-import 'package:flowcycle/shared/models/user_profile.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';
 import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
 

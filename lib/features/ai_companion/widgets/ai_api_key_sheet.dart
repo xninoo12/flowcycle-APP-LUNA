@@ -24,7 +24,7 @@ class _AiApiKeySheetState extends State<AiApiKeySheet> {
   void initState() {
     super.initState();
     _keyController = TextEditingController(
-      text: AiService.instance.apiKey ?? '',
+      text: AiService.instance.apiKey,
     );
   }
 

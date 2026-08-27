@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/models/daily_log_entry.dart';
 import '../../shared/models/user_profile.dart';
 
 /// Ultra-lightweight, zero-bloat local database engine for FlowCycle.
 ///
 /// Designed to keep total app binary size under 80MB (actual overhead < 150KB)
-/// by utilizing pure Dart asynchronous atomic file storage and in-memory indexing.
+/// by utilizing pure Dart asynchronous atomic file storage, SharedPreferences, and in-memory indexing.
 class LocalDatabaseService {
   static final LocalDatabaseService instance = LocalDatabaseService._internal();
   factory LocalDatabaseService() => instance;
@@ -17,7 +19,9 @@ class LocalDatabaseService {
 
   bool _isInitialized = false;
   String? _customStoragePath;
+  String? _resolvedDirectoryPath;
   String? _userScope;
+  SharedPreferences? _prefs;
 
   // In-memory indexed stores
   UserProfile? _cachedProfile;
@@ -27,6 +31,7 @@ class LocalDatabaseService {
 
   bool get isInitialized => _isInitialized;
   String? get currentUserScope => _userScope;
+  SharedPreferences? get sharedPreferences => _prefs;
 
   @visibleForTesting
   void setCustomStoragePath(String? path) {
@@ -45,7 +50,7 @@ class LocalDatabaseService {
     }
   }
 
-  /// Initialize local database storage directory and hydrate in-memory cache.
+  /// Initialize local database storage directory, SharedPreferences, and hydrate in-memory cache.
   Future<void> initialize({String? customPath, String? userScope}) async {
     if (customPath != null) {
       _customStoragePath = customPath;
@@ -53,13 +58,39 @@ class LocalDatabaseService {
     if (userScope != null) {
       _userScope = userScope;
     }
+
+    try {
+      _prefs ??= await SharedPreferences.getInstance();
+    } catch (_) {
+      // Ignored in headless/test environments
+    }
+
+    _resolvedDirectoryPath = await _resolveStorageDirectoryPath();
     _isInitialized = true;
     await _hydrateFromDisk();
+  }
+
+  Future<String> _resolveStorageDirectoryPath() async {
+    if (_customStoragePath != null) {
+      return _customStoragePath!;
+    }
+    try {
+      if (!kIsWeb) {
+        final docDir = await getApplicationDocumentsDirectory();
+        return docDir.path;
+      }
+    } catch (_) {
+      // Fallback for tests or unsupported environments
+    }
+    return Directory.systemTemp.path;
   }
 
   String _getStorageDirectoryPath() {
     if (_customStoragePath != null) {
       return _customStoragePath!;
+    }
+    if (_resolvedDirectoryPath != null) {
+      return _resolvedDirectoryPath!;
     }
     return Directory.systemTemp.path;
   }

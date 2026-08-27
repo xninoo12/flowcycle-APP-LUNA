@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_gradients.dart';
-import '../../../shared/widgets/buttons/primary_button.dart';
 import 'contact_support_dialog.dart';
 
 /// Modal bottom sheet popup for Help Center with searchable FAQs and accordion questions.
@@ -209,7 +207,8 @@ class _HelpCenterSheetState extends State<HelpCenterSheet> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               itemCount: _categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8.0),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: 8.0),
               itemBuilder: (context, index) {
                 final category = _categories[index];
                 final isSelected = _selectedCategory == category;
@@ -273,7 +272,8 @@ class _HelpCenterSheetState extends State<HelpCenterSheet> {
                       vertical: 12.0,
                     ),
                     itemCount: filteredFaqs.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10.0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10.0),
                     itemBuilder: (context, index) {
                       final faq = filteredFaqs[index];
                       return Material(

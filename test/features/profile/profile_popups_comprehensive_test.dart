@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flowcycle/core/services/notification_service.dart';
-import 'package:flowcycle/features/profile/profile_screen.dart';
 import 'package:flowcycle/features/profile/widgets/app_preferences_sheet.dart';
 import 'package:flowcycle/features/profile/widgets/edit_profile_sheet.dart';
 import 'package:flowcycle/features/profile/widgets/help_center_sheet.dart';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/data/app_data_manager.dart';
 import '../../../core/theme/app_gradients.dart';
 import '../../../shared/providers/app_scope.dart';
 import '../../../shared/widgets/buttons/primary_button.dart';
@@ -176,6 +175,19 @@ class _PrivacySecuritySheetState extends State<PrivacySecuritySheet> {
 
                   const SizedBox(height: 10.0),
 
+                  // Zero-Tracking Toggle
+                  _buildToggleCard(
+                    icon: Icons.shield_outlined,
+                    title: 'Zero Ad Tracking',
+                    subtitle: 'Never share analytics or telemetry with 3rd parties',
+                    value: _analyticsOptOut,
+                    onChanged: (v) {
+                      setState(() => _analyticsOptOut = v);
+                    },
+                  ),
+
+                  const SizedBox(height: 10.0),
+
                   // 2. Passcode & Biometrics Action
                   _buildActionCard(
                     icon: Icons.lock_outline_rounded,
@@ -328,7 +340,7 @@ class _PrivacySecuritySheetState extends State<PrivacySecuritySheet> {
           ),
           Switch.adaptive(
             value: value,
-            activeColor: const Color(0xFF10B981),
+            activeTrackColor: const Color(0xFF10B981),
             onChanged: onChanged,
           ),
         ],

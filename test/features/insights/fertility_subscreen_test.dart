@@ -6,7 +6,6 @@ import 'package:flowcycle/features/insights/fertility/widgets/fertility_factors_
 import 'package:flowcycle/features/insights/fertility/widgets/fertility_header.dart';
 import 'package:flowcycle/features/insights/fertility/widgets/fertility_today_hero_card.dart';
 import 'package:flowcycle/features/insights/insights_screen.dart';
-import 'package:flowcycle/shared/models/user_profile.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';
 import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
 

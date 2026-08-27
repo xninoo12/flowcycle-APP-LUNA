@@ -128,6 +128,7 @@ void main() {
     test('4. In-App Notification Inbox management works properly', () {
       expect(service.inbox, isNotEmpty);
       final initialUnread = service.unreadCount;
+      expect(initialUnread, greaterThan(0));
 
       service.markAllAsRead();
       expect(service.unreadCount, 0);

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/services/notification_service.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_gradients.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_shadows.dart';
-import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/widgets/buttons/primary_button.dart';
 
 /// Modal bottom sheet popup for configuring reminders and notification preferences.
@@ -392,7 +389,7 @@ class _RemindersSettingsSheetState extends State<RemindersSettingsSheet> {
           ),
           Switch.adaptive(
             value: _discreetMode,
-            activeColor: const Color(0xFF10B981),
+            activeTrackColor: const Color(0xFF10B981),
             onChanged: (v) => setState(() => _discreetMode = v),
           ),
         ],
@@ -439,7 +436,7 @@ class _RemindersSettingsSheetState extends State<RemindersSettingsSheet> {
               ),
               Switch.adaptive(
                 value: _periodAlert,
-                activeColor: const Color(0xFFFF4D79),
+                activeTrackColor: const Color(0xFFFF4D79),
                 onChanged: (v) => setState(() => _periodAlert = v),
               ),
             ],
@@ -539,7 +536,7 @@ class _RemindersSettingsSheetState extends State<RemindersSettingsSheet> {
               ),
               Switch.adaptive(
                 value: _dailyLogPrompt,
-                activeColor: const Color(0xFF7C5CE7),
+                activeTrackColor: const Color(0xFF7C5CE7),
                 onChanged: (v) => setState(() => _dailyLogPrompt = v),
               ),
             ],
@@ -636,7 +633,7 @@ class _RemindersSettingsSheetState extends State<RemindersSettingsSheet> {
               ),
               Switch.adaptive(
                 value: _pillReminder,
-                activeColor: const Color(0xFFEC4899),
+                activeTrackColor: const Color(0xFFEC4899),
                 onChanged: (v) => setState(() => _pillReminder = v),
               ),
             ],
@@ -753,7 +750,7 @@ class _RemindersSettingsSheetState extends State<RemindersSettingsSheet> {
           ),
           Switch.adaptive(
             value: value,
-            activeColor: const Color(0xFFFF4D79),
+            activeTrackColor: const Color(0xFFFF4D79),
             onChanged: onChanged,
           ),
         ],

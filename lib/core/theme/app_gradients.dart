@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_theme.dart';
-import 'flow_cycle_theme_extension.dart';
 
 /// Reusable gradient styles for FlowCycle with dynamic theme reactivity.
 abstract final class AppGradients {

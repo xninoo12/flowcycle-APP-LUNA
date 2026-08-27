@@ -330,7 +330,7 @@ REASONING & FORMATTING GUIDELINES:
             '• **Warm Hydration**: Bone broth, ginger tea, and warm water to support circulation and pelvic comfort.';
       } else if (phaseName.toLowerCase().contains('follicular') ||
           phaseName.toLowerCase().contains('ovulat')) {
-        return '### 🥗 Nutrition for ${phaseName} (Day $cycleDay)\n\n'
+        return '### 🥗 Nutrition for $phaseName (Day $cycleDay)\n\n'
             'Estrogen is rising to mature follicles and build energy:\n'
             '• **Cruciferous Veggies**: Broccoli, arugula, and cabbage to help your liver process estrogen smoothly.\n'
             '• **Healthy Fats**: Avocado, chia seeds, and wild salmon for hormone synthesis.\n'

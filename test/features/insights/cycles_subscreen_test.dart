@@ -8,7 +8,6 @@ import 'package:flowcycle/features/insights/cycles/widgets/cycles_current_hero_c
 import 'package:flowcycle/features/insights/cycles/widgets/cycles_header.dart';
 import 'package:flowcycle/features/insights/cycles/widgets/cycles_sub_tabs.dart';
 import 'package:flowcycle/features/insights/insights_screen.dart';
-import 'package:flowcycle/shared/models/user_profile.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';
 import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
 

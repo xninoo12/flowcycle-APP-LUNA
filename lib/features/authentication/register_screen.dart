@@ -12,7 +12,6 @@ import '../../shared/widgets/buttons/app_icon_button.dart';
 import '../../shared/widgets/buttons/primary_button.dart';
 import '../../shared/widgets/inputs/primary_text_field.dart';
 import 'widgets/auth_floral_background.dart';
-import 'widgets/auth_otp_verification_sheet.dart';
 import 'widgets/auth_terms_and_privacy_sheet.dart';
 import 'widgets/password_strength_meter.dart';
 import 'widgets/social_auth_buttons.dart';
@@ -100,35 +99,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _agreeToTerms = true;
             _termsError = false;
           });
-        },
-      ),
-    );
-  }
-
-  void _openOtpVerificationSheet(String email) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => AuthOtpVerificationSheet(
-        email: email,
-        onVerificationSuccess: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                'Email verified successfully! Welcome to FlowCycle.',
-              ),
-              backgroundColor: AppColors.success,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-            ),
-          );
-
-          try {
-            context.go(AppRoutes.onboardingPath);
-          } catch (_) {}
         },
       ),
     );

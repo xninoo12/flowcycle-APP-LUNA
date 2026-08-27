@@ -21,7 +21,6 @@ import 'widgets/profile_privacy_matters_banner.dart';
 import 'widgets/profile_support_about_card.dart';
 import 'widgets/privacy_security_sheet.dart';
 import 'widgets/rate_app_dialog.dart';
-import 'widgets/reminders_settings_sheet.dart';
 import 'widgets/theme_picker_sheet.dart';
 
 /// Complete Profile Screen with all features wired as interactive individual popups/sheets.
@@ -62,15 +61,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => const NotificationCenterSheet(),
-    );
-  }
-
-  void _openRemindersSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => const RemindersSettingsSheet(),
     );
   }
 

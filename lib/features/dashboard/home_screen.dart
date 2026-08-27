@@ -5,7 +5,6 @@ import '../../app/router/route_names.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../shared/models/app_mode.dart';
 import '../../shared/providers/app_scope.dart';
-import '../ai_companion/reminders/smart_reminders_sheet.dart';
 import '../profile/widgets/notification_center_sheet.dart';
 import 'models/cycle_dashboard_state.dart';
 import 'widgets/ai_companion_card.dart';
@@ -89,15 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => const NotificationCenterSheet(),
-    );
-  }
-
-  void _openRemindersSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => const SmartRemindersSheet(),
     );
   }
 

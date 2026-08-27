@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flowcycle/features/ai_companion/ai_companion_screen.dart';
 import 'package:flowcycle/features/calendar/calendar_screen.dart';
 import 'package:flowcycle/features/daily_log/daily_log_screen.dart';
-import 'package:flowcycle/features/daily_log/widgets/all_set_success_dialog.dart';
 import 'package:flowcycle/features/dashboard/home_screen.dart';
 import 'package:flowcycle/features/dashboard/widgets/cycle_ring_card.dart';
 import 'package:flowcycle/features/dashboard/widgets/ttc/ttc_hero_cycle_card.dart';

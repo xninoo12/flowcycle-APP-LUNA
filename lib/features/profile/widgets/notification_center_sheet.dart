@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/services/notification_service.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/models/user_profile.dart';
@@ -371,7 +369,8 @@ class _NotificationCenterSheetState extends State<NotificationCenterSheet> {
           child: ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             itemCount: inbox.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final item = inbox[index];
               return _buildNotificationCard(context, service, item);
@@ -526,7 +525,8 @@ class _NotificationCenterSheetState extends State<NotificationCenterSheet> {
           child: ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             itemCount: reminders.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final reminder = reminders[index];
               return _buildScheduledCard(context, reminder);

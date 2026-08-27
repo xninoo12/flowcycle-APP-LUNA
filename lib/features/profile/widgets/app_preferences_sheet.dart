@@ -406,7 +406,8 @@ class LanguageSelectionSheet extends StatelessWidget {
                 vertical: 14.0,
               ),
               itemCount: _languages.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8.0),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: 8.0),
               itemBuilder: (context, index) {
                 final lang = _languages[index];
                 final isSelected = lang['name'] == selectedLanguage;

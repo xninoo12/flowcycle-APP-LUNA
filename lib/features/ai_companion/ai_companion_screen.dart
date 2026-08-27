@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../app/router/route_names.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../shared/providers/app_scope.dart';
 import '../profile/widgets/edit_profile_sheet.dart';

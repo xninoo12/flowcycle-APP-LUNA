@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/services/ai_service.dart';
 import '../../../../core/theme/app_gradients.dart';
-import '../../../../shared/providers/app_scope.dart';
 import '../../../../shared/providers/cycle_data_controller.dart';
 
 /// Modal bottom sheet popup for interactive AI Companion conversations.
@@ -225,7 +224,8 @@ class _AiQuickChatSheetState extends State<AiQuickChatSheet> {
                 vertical: 6.0,
               ),
               itemCount: _suggestedChips.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8.0),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: 8.0),
               itemBuilder: (context, index) {
                 final chip = _suggestedChips[index];
                 return ActionChip(

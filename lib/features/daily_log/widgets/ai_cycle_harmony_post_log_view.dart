@@ -4,7 +4,6 @@ import '../../../app/router/route_names.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../shared/models/app_mode.dart';
 import '../../../shared/models/daily_log_entry.dart';
-import '../../../shared/models/user_profile.dart';
 import '../../../shared/providers/app_scope.dart';
 
 /// Interactive AI Cycle Harmony & Wellness Analysis View shown immediately upon saving a daily log.

@@ -187,7 +187,8 @@ class _AiChatHistorySheetState extends State<AiChatHistorySheet> {
                 : ListView.separated(
                     padding: const EdgeInsets.all(20.0),
                     itemCount: filteredChats.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10.0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10.0),
                     itemBuilder: (context, index) {
                       final chat = filteredChats[index];
                       return InkWell(
