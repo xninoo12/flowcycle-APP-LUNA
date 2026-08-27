@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1011663589978",
+    "project_id": "flowcycle-app",
+    "storage_bucket": "flowcycle-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011663589978:android:32973c3468b8b9e71fbe63",
+        "android_client_info": {
+          "package_name": "com.flowcycle.flowcycle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1011663589978-lvuu8lmscu7668ke2mfgnraok231n4bv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPNZHOTq7XKSzNcc-Zuok4BikEFKpX2FA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1011663589978-lvuu8lmscu7668ke2mfgnraok231n4bv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

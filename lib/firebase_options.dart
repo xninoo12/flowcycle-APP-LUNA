@@ -41,31 +41,31 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDemoFlowCycleWebKeyPlaceholder',
-    appId: '1:1234567890:web:abcdef123456',
-    messagingSenderId: '1234567890',
+    apiKey: 'AIzaSyDETnFVMEf-lLTyap7JLBGSbFmAyoEeo6g',
+    appId: '1:1011663589978:web:b4cebe142d0dc4f51fbe63',
+    messagingSenderId: '1011663589978',
     projectId: 'flowcycle-app',
     authDomain: 'flowcycle-app.firebaseapp.com',
-    storageBucket: 'flowcycle-app.appspot.com',
+    storageBucket: 'flowcycle-app.firebasestorage.app',
+    measurementId: 'G-BX1FLMSKPN',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDemoFlowCycleAndroidKeyPlaceholder',
-    appId: '1:1234567890:android:abcdef123456',
-    messagingSenderId: '1234567890',
+    apiKey: 'AIzaSyDPNZHOTq7XKSzNcc-Zuok4BikEFKpX2FA',
+    appId: '1:1011663589978:android:32973c3468b8b9e71fbe63',
+    messagingSenderId: '1011663589978',
     projectId: 'flowcycle-app',
-    storageBucket: 'flowcycle-app.appspot.com',
+    storageBucket: 'flowcycle-app.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDemoFlowCycleIosKeyPlaceholder',
-    appId: '1:1234567890:ios:abcdef123456',
-    messagingSenderId: '1234567890',
+    apiKey: 'AIzaSyBU85vWW2E89T8BSqIbBO47-zv7yYKFFC0',
+    appId: '1:1011663589978:ios:4a22d26e5586fa191fbe63',
+    messagingSenderId: '1011663589978',
     projectId: 'flowcycle-app',
-    storageBucket: 'flowcycle-app.appspot.com',
+    storageBucket: 'flowcycle-app.firebasestorage.app',
+    iosClientId: '1011663589978-34qu1blc8t8k1d99qtp22jiuns3o2n79.apps.googleusercontent.com',
     iosBundleId: 'com.flowcycle.flowcycle',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDemoFlowCycleMacKeyPlaceholder',
     appId: '1:1234567890:ios:abcdef123456',

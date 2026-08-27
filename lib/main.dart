@@ -6,13 +6,16 @@ import 'package:flowcycle/core/data/app_data_manager.dart';
 import 'package:flowcycle/core/localization/app_localizations.dart';
 import 'package:flowcycle/core/localization/locale_controller.dart';
 import 'package:flowcycle/core/theme/app_theme.dart';
+import 'package:flowcycle/firebase_options.dart';
 import 'package:flowcycle/shared/providers/app_scope.dart';
 import 'package:flowcycle/shared/providers/cycle_data_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     debugPrint('Firebase initialization notice: $e (running in local/offline fallback mode)');
   }
