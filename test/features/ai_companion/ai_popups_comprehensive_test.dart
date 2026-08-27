@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flowcycle/features/ai_companion/ai_companion_screen.dart';
 import 'package:flowcycle/features/ai_companion/chat/widgets/ai_quick_chat_sheet.dart';
-import 'package:flowcycle/features/ai_companion/widgets/ai_api_key_sheet.dart';
 import 'package:flowcycle/features/ai_companion/widgets/ai_chat_history_sheet.dart';
 import 'package:flowcycle/features/ai_companion/widgets/ai_medical_disclaimer_sheet.dart';
 import 'package:flowcycle/features/ai_companion/widgets/ai_prompt_explorer_sheet.dart';

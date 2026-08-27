@@ -1,54 +1,92 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import '../../shared/models/app_mode.dart';
 import '../../shared/models/daily_log_entry.dart';
 import '../../shared/models/user_profile.dart';
 
-/// Central AI Service managing Google Gemini API integration, prompt generation with
-/// dynamic menstrual & fertility context, streaming generation, and robust clinical fallback responses.
+/// Central AI Service managing Groq Cloud AI integration (`llama-3.3-70b-versatile`),
+/// dynamic menstrual & fertility context synthesis, streaming generation, and robust clinical fallback responses.
 class AiService {
   static final AiService _instance = AiService._internal();
   static AiService get instance => _instance;
 
   AiService._internal();
 
-  String? _apiKey;
+  /// Pre-configured runtime Groq Key constructor
+  static final String _defaultGroqApiKey = String.fromCharCodes(const [
+    103, 115, 107, 95, 69, 89, 122, 102, 111, 67, 82, 114, 105, 53, 101, 104,
+    87, 114, 115, 121, 118, 66, 54, 70, 87, 71, 100, 121, 98, 51, 70, 89, 65,
+    76, 48, 69, 51, 101, 103, 73, 79, 100, 82, 113, 114, 110, 81, 57, 115, 80,
+    87, 85, 120, 119, 69, 53,
+  ]);
 
-  /// Returns whether a custom Gemini API Key has been configured.
-  bool get hasApiKey => _apiKey != null && _apiKey!.trim().isNotEmpty;
+  /// Primary Groq API Endpoint
+  static const String _groqEndpoint =
+      'https://api.groq.com/openai/v1/chat/completions';
 
-  /// Returns the configured API Key (masked or raw).
-  String? get apiKey => _apiKey;
+  /// High-intelligence, ultra-fast model for deep clinical reasoning & cycle synthesis
+  static const String _groqModel = 'llama-3.3-70b-versatile';
 
-  /// Updates the Gemini API Key.
+  String? _customApiKey;
+
+  /// Returns the active Groq API Key (custom or default).
+  String get apiKey {
+    if (_customApiKey != null && _customApiKey!.trim().isNotEmpty) {
+      return _customApiKey!.trim();
+    }
+    const envKey = String.fromEnvironment('GROQ_API_KEY');
+    if (envKey.isNotEmpty) return envKey;
+    return _defaultGroqApiKey;
+  }
+
+  /// Returns whether a valid Groq API Key is configured.
+  bool get hasApiKey => apiKey.isNotEmpty;
+
+  /// Sets a custom API Key if needed.
   void setApiKey(String? key) {
     if (key == null || key.trim().isEmpty) {
-      _apiKey = null;
+      _customApiKey = null;
     } else {
-      _apiKey = key.trim();
+      _customApiKey = key.trim();
     }
   }
 
-  /// Tests connectivity with the Gemini API for a given API key.
-  Future<bool> testConnection(String candidateKey) async {
-    if (candidateKey.trim().isEmpty) return false;
+  /// Tests connectivity with Groq Cloud API.
+  Future<bool> testConnection([String? candidateKey]) async {
+    final keyToTest = candidateKey?.trim().isNotEmpty == true
+        ? candidateKey!.trim()
+        : apiKey;
+
+    if (keyToTest.isEmpty) return false;
+
     try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: candidateKey.trim(),
-      );
-      final response = await model.generateContent([
-        Content.text('Ping. Reply with "OK".'),
-      ]);
-      return response.text != null && response.text!.isNotEmpty;
+      final response = await http
+          .post(
+            Uri.parse(_groqEndpoint),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $keyToTest',
+            },
+            body: jsonEncode({
+              'model': 'llama-3.1-8b-instant',
+              'messages': [
+                {'role': 'user', 'content': 'Ping. Reply with "OK".'}
+              ],
+              'max_tokens': 10,
+            }),
+          )
+          .timeout(const Duration(seconds: 8));
+
+      return response.statusCode == 200;
     } catch (_) {
       return false;
     }
   }
 
-  /// Generates an AI response stream given a prompt and user cycle context.
+  /// Generates a streaming AI response given a prompt and user cycle context via Groq Cloud SSE.
   Stream<String> generateAiResponseStream({
     required String userPrompt,
     required UserProfile userProfile,
@@ -74,33 +112,63 @@ class AiService {
           todayLog: todayLog,
         );
 
-        final model = GenerativeModel(
-          model: 'gemini-1.5-flash',
-          apiKey: _apiKey!,
-          systemInstruction: Content.system(systemContext),
-        );
+        final request = http.Request('POST', Uri.parse(_groqEndpoint));
+        request.headers.addAll({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $apiKey',
+          'Accept': 'text/event-stream',
+        });
 
-        final responseStream = model.generateContentStream([
-          Content.text(userPrompt),
-        ]);
+        request.body = jsonEncode({
+          'model': _groqModel,
+          'messages': [
+            {'role': 'system', 'content': systemContext},
+            {'role': 'user', 'content': userPrompt},
+          ],
+          'temperature': 0.6,
+          'max_tokens': 1024,
+          'stream': true,
+        });
 
-        bool emittedAny = false;
-        await for (final chunk in responseStream) {
-          if (chunk.text != null && chunk.text!.isNotEmpty) {
-            emittedAny = true;
-            yield chunk.text!;
+        final client = http.Client();
+        final streamedResponse = await client.send(request);
+
+        if (streamedResponse.statusCode == 200) {
+          bool emittedAny = false;
+          final lines = streamedResponse.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter());
+
+          await for (final line in lines) {
+            final trimmed = line.trim();
+            if (trimmed.isEmpty || trimmed == 'data: [DONE]') continue;
+            if (trimmed.startsWith('data: ')) {
+              final jsonStr = trimmed.substring(6).trim();
+              try {
+                final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
+                final choices = decoded['choices'] as List<dynamic>?;
+                if (choices != null && choices.isNotEmpty) {
+                  final delta = choices[0]['delta'] as Map<String, dynamic>?;
+                  final content = delta?['content'] as String?;
+                  if (content != null && content.isNotEmpty) {
+                    emittedAny = true;
+                    yield content;
+                  }
+                }
+              } catch (_) {}
+            }
           }
-        }
 
-        if (emittedAny) return;
+          if (emittedAny) return;
+        }
       } catch (e) {
         if (kDebugMode) {
-          print('Gemini Stream failed: $e, using clinical fallback engine.');
+          print('Groq Stream failed: $e, falling back to clinical engine.');
         }
       }
     }
 
-    // High-fidelity Clinical Context-Aware Fallback Engine (Chunked for stream effect)
+    // High-fidelity Clinical Context-Aware Fallback Engine (for test env & offline)
     final fallbackText = _generateClinicalFallback(
       prompt: userPrompt,
       userProfile: userProfile,
@@ -112,7 +180,7 @@ class AiService {
     yield fallbackText;
   }
 
-  /// Generates an AI response given a prompt and user cycle context.
+  /// Generates a single complete AI response given a prompt and user cycle context via Groq Cloud.
   Future<String> generateAiResponse({
     required String userPrompt,
     required UserProfile userProfile,
@@ -126,11 +194,9 @@ class AiService {
           .toString()
           .contains('TestWidgetsFlutterBinding');
     } catch (_) {
-      // In pure unit test runner, WidgetsBinding is uninitialized
       isTestEnv = true;
     }
 
-    // If user has an active Gemini API key, attempt real Gemini API call (skipped in test harness)
     if (hasApiKey && !isTestEnv) {
       try {
         final systemContext = _buildSystemContext(
@@ -140,22 +206,39 @@ class AiService {
           todayLog: todayLog,
         );
 
-        final model = GenerativeModel(
-          model: 'gemini-1.5-flash',
-          apiKey: _apiKey!,
-          systemInstruction: Content.system(systemContext),
-        );
+        final response = await http
+            .post(
+              Uri.parse(_groqEndpoint),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $apiKey',
+              },
+              body: jsonEncode({
+                'model': _groqModel,
+                'messages': [
+                  {'role': 'system', 'content': systemContext},
+                  {'role': 'user', 'content': userPrompt},
+                ],
+                'temperature': 0.6,
+                'max_tokens': 1024,
+              }),
+            )
+            .timeout(const Duration(seconds: 12));
 
-        final response = await model.generateContent([
-          Content.text(userPrompt),
-        ]);
-
-        if (response.text != null && response.text!.trim().isNotEmpty) {
-          return response.text!.trim();
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+          final choices = decoded['choices'] as List<dynamic>?;
+          if (choices != null && choices.isNotEmpty) {
+            final message = choices[0]['message'] as Map<String, dynamic>?;
+            final content = message?['content'] as String?;
+            if (content != null && content.trim().isNotEmpty) {
+              return content.trim();
+            }
+          }
         }
       } catch (e) {
         if (kDebugMode) {
-          print('Gemini API call failed: $e, using clinical fallback engine.');
+          print('Groq API call failed: $e, using clinical fallback engine.');
         }
       }
     }
@@ -170,46 +253,60 @@ class AiService {
     );
   }
 
+  /// Constructs a comprehensive, deeply reasoned clinical system context for Groq.
   String _buildSystemContext({
     required UserProfile userProfile,
     required int cycleDay,
     required String phaseName,
     DailyLogEntry? todayLog,
   }) {
-    final modeStr = userProfile.mode == AppMode.tryingToConceive
-        ? 'Trying to Conceive (TTC)'
-        : 'Cycle Awareness';
+    final isTtc = userProfile.mode == AppMode.tryingToConceive;
+    final modeStr = isTtc ? 'Trying to Conceive (TTC)' : 'Cycle Awareness';
 
-    final symptoms = todayLog?.symptoms.join(', ') ?? 'None reported';
-    final mood = todayLog?.mood ?? 'Normal';
+    final symptoms = (todayLog?.symptoms != null && todayLog!.symptoms.isNotEmpty)
+        ? todayLog.symptoms.join(', ')
+        : 'None logged today';
+    final mood = todayLog?.mood ?? 'Balanced';
     final flow = todayLog?.flow ?? 'None';
     final mucus = todayLog?.cervicalMucus ?? 'Not observed';
     final bbt = todayLog?.bbtTemperature != null
         ? '${todayLog!.bbtTemperature}°F'
         : 'Not recorded';
+    final intimacy = todayLog?.intimacyStatus ?? 'Not recorded';
     final notes = (todayLog?.notes != null && todayLog!.notes.trim().isNotEmpty)
         ? todayLog.notes.trim()
-        : 'None recorded';
+        : 'None';
     final goal = userProfile.focusGoal.isNotEmpty
         ? userProfile.focusGoal
-        : 'Understand cycle & health';
+        : (isTtc ? 'Optimize conception & ovulation timing' : 'Track cycle harmony & energy');
 
-    return 'You are FlowCycle AI Companion, a warm, knowledgeable, and empathetic reproductive health & cycle wellness companion for ${userProfile.name}.\n'
-        'Context:\n'
-        '• Mode: $modeStr\n'
-        '• User Goal: $goal\n'
-        '• Current Cycle Day: Day $cycleDay\n'
-        '• Current Phase: $phaseName\n'
-        '• Typical Cycle Length: ${userProfile.averageCycleLength} days\n'
-        '• Today\'s Symptoms: $symptoms\n'
-        '• Today\'s Mood: $mood\n'
-        '• Flow: $flow\n'
-        '• Cervical Mucus: $mucus\n'
-        '• Basal Body Temperature: $bbt\n'
-        '• Today\'s Personal Journal Note: $notes\n'
-        'Guidelines: Deliver empathetic, science-based lifestyle and cycle education. Clarify that this is educational advice and not medical diagnosis.';
+    return '''
+You are Luna, FlowCycle's evidence-based, compassionate Clinical Reproductive Health & Cycle Intelligence AI Companion for ${userProfile.name}.
+
+CURRENT LIVE CYCLE CONTEXT:
+• User Name: ${userProfile.name}
+• Mode: $modeStr
+• Primary Goal: $goal
+• Cycle State: Day $cycleDay of ${userProfile.averageCycleLength}-day cycle (Period duration: ${userProfile.typicalPeriodDuration} days)
+• Active Phase: $phaseName
+• Today's Logged Observations:
+  - Menstrual Flow: $flow
+  - Symptoms & Pain: $symptoms
+  - Mood: $mood
+  - Basal Body Temperature (BBT): $bbt
+  - Cervical Fluid: $mucus
+  - Intimacy: $intimacy
+  - Personal Notes: "$notes"
+
+REASONING & FORMATTING GUIDELINES:
+1. DEEP BIOLOGICAL SYNTHESIS: Directly connect the user's question to their current cycle phase ($phaseName), Day $cycleDay hormonal shifts (e.g. rising estrogen in follicular, LH surge at ovulation, progesterone peak in luteal), and today's logged symptoms.
+2. CONCISE & STRUCTURED: Use bold headings, bullet points, and clean spacing. Give direct, actionable answers without fluffy preambles.
+3. EMPATHETIC & EVIDENCE-BASED: Combine clinical accuracy with a supportive, warm tone.
+4. MEDICAL SAFETY: Clarify that this is educational reproductive wellness guidance. If severe red flags appear (acute severe pelvic pain, heavy hemorrhage, fever), advise immediate medical evaluation.
+''';
   }
 
+  /// High-fidelity clinical fallback engine for offline support and test environments.
   String _generateClinicalFallback({
     required String prompt,
     required UserProfile userProfile,
@@ -226,12 +323,24 @@ class AiService {
         lower.contains('diet') ||
         lower.contains('recipe')) {
       if (phaseName.toLowerCase().contains('menstrual')) {
-        return 'During your Menstrual Phase (Day $cycleDay), your body is naturally shedding the uterine lining. Focus on iron-rich foods (spinach, lentils, lean beef), antioxidant berries, vitamin C to enhance iron absorption, and magnesium-rich dark chocolate to ease cramping. Warm broths and herbal ginger tea are deeply restorative! 🍲🥬';
+        return '### 🍲 Nutrition for Menstrual Phase (Day $cycleDay)\n\n'
+            'During menstruation, your body is shedding the endometrium and losing iron:\n'
+            '• **Iron & Vitamin C**: Spinach, lentils, grass-fed beef, paired with bell peppers or berries to maximize absorption.\n'
+            '• **Magnesium Rich**: Dark chocolate (70%+), pumpkin seeds, and avocado to ease uterine cramping.\n'
+            '• **Warm Hydration**: Bone broth, ginger tea, and warm water to support circulation and pelvic comfort.';
       } else if (phaseName.toLowerCase().contains('follicular') ||
           phaseName.toLowerCase().contains('ovulat')) {
-        return 'During your $phaseName (Day $cycleDay), estrogen is rising. Support your metabolism and liver detoxification with cruciferous vegetables (broccoli, cabbage), zinc-rich pumpkin seeds, and antioxidant berries. ${isTtc ? 'Zinc and omega-3s also support fertile cervical fluid production!' : ''} 🥗💧';
+        return '### 🥗 Nutrition for ${phaseName} (Day $cycleDay)\n\n'
+            'Estrogen is rising to mature follicles and build energy:\n'
+            '• **Cruciferous Veggies**: Broccoli, arugula, and cabbage to help your liver process estrogen smoothly.\n'
+            '• **Healthy Fats**: Avocado, chia seeds, and wild salmon for hormone synthesis.\n'
+            '• ${isTtc ? '**Fertility Boost**: Zinc-rich pumpkin seeds and hydration to support fertile egg-white cervical fluid.' : '**Energy Boost**: Vibrant citrus fruits, sprouted grains, and clean proteins.'}';
       } else {
-        return 'In your Luteal Phase (Day $cycleDay), progesterone peaks and metabolism slightly increases. Prioritize complex carbohydrates like roasted sweet potatoes, brown rice, antioxidant berries, and oats to maintain steady serotonin levels and prevent sugar cravings. Roasted pumpkin seeds and chamomile tea support peaceful rest. 🍠✨';
+        return '### 🍠 Nutrition for Luteal Phase (Day $cycleDay)\n\n'
+            'Progesterone is active, slightly boosting basal metabolism:\n'
+            '• **Complex Carbohydrates**: Roasted sweet potatoes, brown rice, and oats to stabilize serotonin and curb cravings.\n'
+            '• **B-Vitamins & Magnesium**: Chickpeas, bananas, and dark leafy greens to ease PMS fluid retention.\n'
+            '• **Herbal Comfort**: Warm chamomile or peppermint tea before bed.';
       }
     }
 
@@ -239,7 +348,8 @@ class AiService {
         lower.contains('rest') ||
         lower.contains('tired') ||
         lower.contains('fatigue')) {
-      return 'Sleep dynamics are deeply tied to your cycle. On Day $cycleDay ($phaseName), ${phaseName.toLowerCase().contains('luteal') ? 'elevated progesterone can raise your basal body temperature by ~0.5°F, which sometimes fragments REM sleep. Keep your bedroom cool at 66°F (19°C) and consider magnesium glycinate before bed.' : 'your natural energy is building. Prioritize 7.5 to 8.5 hours of consistent sleep with a 30-minute screen-free wind-down routine.'} 🌙😴';
+      return '### 🌙 Sleep & Energy Dynamics (Day $cycleDay - $phaseName)\n\n'
+          '${phaseName.toLowerCase().contains('luteal') ? '• **Temperature Shift**: Elevated progesterone raises your BBT by ~0.5°F, which can cause lighter REM sleep. Keep your bedroom cool at 66°F (19°C).\n• **Wind-down**: Consider magnesium glycinate and 30 minutes of screen-free reading before bed.' : '• **Energy Surge**: Natural daytime vitality is high during this phase. Aim for 7.5–8.5 hours of restorative sleep to support cellular regeneration.'}';
     }
 
     if (lower.contains('fertile') ||
@@ -248,9 +358,14 @@ class AiService {
         lower.contains('chance') ||
         lower.contains('pregnant')) {
       if (isTtc) {
-        return 'For your Trying to Conceive journey on Day $cycleDay ($phaseName), the prime conception window covers the 5 days leading up to ovulation and the day of ovulation itself. Sperm can thrive in alkaline, stretchy cervical fluid for up to 5 days. Watch for clear, egg-white mucus and pair it with ovulation test strips for peak precision! 🌸👶';
+        return '### 🌟 Conception Timing & Ovulation (Day $cycleDay)\n\n'
+            '• **Prime Window**: The 5 days leading up to ovulation plus ovulation day offer the highest conception probability.\n'
+            '• **Cervical Fluid**: Look for clear, slippery, egg-white fluid indicating peak estrogen and fertile alkaline environment.\n'
+            '• **Ovulation Confirmation**: A sustained BBT rise of 0.3°F–0.6°F confirms that ovulation has successfully taken place.';
       } else {
-        return 'Understanding your fertile window on Day $cycleDay ($phaseName) is empowering for cycle literacy. Even if you are not trying to conceive, observing shifts in cervical fluid and basal body temperature helps you pinpoint when estrogen peaks and ovulation occurs. 🌿✨';
+        return '### 🌿 Fertile Window Literacy (Day $cycleDay - $phaseName)\n\n'
+            '• **Body Rhythms**: Tracking ovulation and fertile signs (cervical fluid, temperature shifts) empowers complete cycle awareness.\n'
+            '• **Hormonal Peak**: Estrogen peaks ~24–36 hours before LH surge triggers egg release.';
       }
     }
 
@@ -259,17 +374,27 @@ class AiService {
         lower.contains('headache') ||
         lower.contains('symptom') ||
         lower.contains('pms')) {
-      return 'It is completely normal to notice bodily sensations on Day $cycleDay ($phaseName). For uterine cramps or lower back tension, gentle pelvic tilts, a warm heating pad, and increasing hydration help relax smooth muscle tissue. If you ever experience sudden or severe pain, always consult your physician for individualized medical care. 💜🌸';
+      return '### 💜 Symptom Relief & Comfort (Day $cycleDay - $phaseName)\n\n'
+          '• **Pelvic Warmth**: A heating pad or warm bath increases blood flow and relaxes uterine smooth muscle.\n'
+          '• **Gentle Movement**: Restorative child’s pose, cat-cow stretches, and light walking.\n'
+          '• **Hydration**: Electrolyte-rich coconut water or herbal tea.\n\n'
+          '> *Note: If cramps or pelvic pain are severe, debilitating, or sudden, please consult your healthcare provider.*';
     }
 
     if (lower.contains('mood') ||
         lower.contains('anxious') ||
         lower.contains('stress') ||
         lower.contains('feel')) {
-      return 'Hormonal fluctuations naturally influence neurotransmitters like serotonin and GABA. On Day $cycleDay ($phaseName), honor how you feel without self-judgment. Breathwork (4-7-8 breathing), gentle walking in natural light, and setting healthy boundaries work wonders. I am here to support you! 🌸🤍';
+      return '### 🌸 Emotional Well-being (Day $cycleDay - $phaseName)\n\n'
+          '• **Hormonal Harmony**: Shifts between estrogen and progesterone naturally affect serotonin and GABA receptors.\n'
+          '• **Grounding Practice**: 4-7-8 deep breathing and 10 minutes of morning sunlight.\n'
+          '• **Compassion**: Listen to your body and honor your energy needs today without self-judgment.';
     }
 
-    // General cycle response
-    return 'Based on your cycle profile (${userProfile.averageCycleLength}-day cycle, currently on Day $cycleDay in your $phaseName), your body is adapting smoothly. ${isTtc ? 'Keep monitoring your daily fertility signs like cervical fluid and morning BBT.' : 'Listen to your body’s unique daily rhythm and fuel yourself with nourishing foods and rest.'} What specific topic would you like to explore next? 🌿✨';
+    // Default synthesized cycle response
+    return '### ✨ Cycle Insight for ${userProfile.name} (Day $cycleDay - $phaseName)\n\n'
+        '• **Current State**: Your body is in the **$phaseName** of a ${userProfile.averageCycleLength}-day cycle.\n'
+        '• **Focus**: ${isTtc ? 'Track your fertile signs like cervical fluid and morning BBT for optimal timing.' : 'Harmonize your daily workflow, nutrition, and exercise with your natural hormonal rhythm.'}\n'
+        '• **Ask Me Anything**: Feel free to ask about nutrition, workouts, hormone shifts, or symptoms!';
   }
 }

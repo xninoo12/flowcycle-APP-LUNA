@@ -6,7 +6,6 @@ class AiCompanionHeader extends StatelessWidget {
   final String subtitle;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
-  final VoidCallback? onApiKeyTap;
 
   const AiCompanionHeader({
     super.key,
@@ -14,7 +13,6 @@ class AiCompanionHeader extends StatelessWidget {
     this.subtitle = 'Your personal fertility & TTC guide',
     this.onNotificationTap,
     this.onProfileTap,
-    this.onApiKeyTap,
   });
 
   @override
@@ -69,40 +67,10 @@ class AiCompanionHeader extends StatelessWidget {
 
         const SizedBox(width: 6.0),
 
-        // 2. AI Key, Notification Bell & Profile Avatar
+        // 2. Notification Bell & Profile Avatar
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // AI API Key Button
-            Container(
-              width: 36.0,
-              height: 36.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFF1ECF5), width: 1.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1E1A3C).withValues(alpha: 0.03),
-                    blurRadius: 4.0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.vpn_key_outlined,
-                  color: Color(0xFF8B5CF6),
-                  size: 16.0,
-                ),
-                padding: EdgeInsets.zero,
-                tooltip: 'AI Engine Settings',
-                onPressed: onApiKeyTap ?? () {},
-              ),
-            ),
-
-            const SizedBox(width: 6.0),
-
             // Circular Bell Button
             Container(
               width: 36.0,

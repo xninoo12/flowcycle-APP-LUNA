@@ -8,7 +8,6 @@ import '../profile/widgets/edit_profile_sheet.dart';
 import 'chat/widgets/ai_quick_chat_sheet.dart';
 import 'learn/ai_learning_section.dart';
 import 'reminders/smart_reminders_sheet.dart';
-import 'widgets/ai_api_key_sheet.dart';
 import 'widgets/ai_chat_history_section.dart';
 import 'widgets/ai_chat_history_sheet.dart';
 import 'widgets/ai_companion_header.dart';
@@ -35,19 +34,6 @@ class _AiCompanionScreenState extends State<AiCompanionScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => AiQuickChatSheet(initialPrompt: prompt),
-    );
-  }
-
-  void _openAiApiKeySheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => AiApiKeySheet(
-        onKeyUpdated: () {
-          setState(() {});
-        },
-      ),
     );
   }
 
@@ -129,9 +115,8 @@ class _AiCompanionScreenState extends State<AiCompanionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. AI Companion Header (Title ✨ 🌸, Subtitle, Key 🔑, Bell 🔔, Avatar)
+                // 1. AI Companion Header (Title ✨ 🌸, Subtitle, Bell 🔔, Avatar)
                 AiCompanionHeader(
-                  onApiKeyTap: _openAiApiKeySheet,
                   onNotificationTap: _openSmartReminders,
                   onProfileTap: _openEditProfileSheet,
                 ),

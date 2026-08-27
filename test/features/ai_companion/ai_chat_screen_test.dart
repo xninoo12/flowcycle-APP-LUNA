@@ -61,8 +61,9 @@ void main() {
         await tester.pump(const Duration(milliseconds: 700));
         await tester.pumpAndSettle();
 
-        // Check AI response
-        expect(find.textContaining('berries'), findsOneWidget);
+        // Check AI response bubble appeared
+        expect(find.byType(ChatMessageBubble), findsAtLeastNWidgets(2));
+        expect(find.textContaining('Nutrition'), findsOneWidget);
       },
     );
   });

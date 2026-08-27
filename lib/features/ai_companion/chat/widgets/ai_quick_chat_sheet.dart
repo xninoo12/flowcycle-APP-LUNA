@@ -4,7 +4,6 @@ import '../../../../core/services/ai_service.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../../../shared/providers/app_scope.dart';
 import '../../../../shared/providers/cycle_data_controller.dart';
-import '../../widgets/ai_api_key_sheet.dart';
 
 /// Modal bottom sheet popup for interactive AI Companion conversations.
 class AiQuickChatSheet extends StatefulWidget {
@@ -36,7 +35,7 @@ class _AiQuickChatSheetState extends State<AiQuickChatSheet> {
     _messages.add(
       _ChatMessage(
         text:
-            "Hi there! 🌸 I'm your FlowCycle AI companion. How can I support your cycle or wellness today?",
+            "Hi! 🌸 I'm Luna, your FlowCycle AI companion. How can I support your cycle or wellness today?",
         isUser: false,
         timestamp: DateTime.now(),
       ),
@@ -134,15 +133,6 @@ class _AiQuickChatSheetState extends State<AiQuickChatSheet> {
     }
   }
 
-  void _openApiKeySheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => const AiApiKeySheet(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -212,25 +202,12 @@ class _AiQuickChatSheetState extends State<AiQuickChatSheet> {
                     ),
                   ],
                 ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.key_rounded,
-                        color: Color(0xFF8B5CF6),
-                        size: 20.0,
-                      ),
-                      tooltip: 'Gemini API Key',
-                      onPressed: _openApiKeySheet,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        color: Color(0xFF7A708A),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
+                IconButton(
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: Color(0xFF7A708A),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),

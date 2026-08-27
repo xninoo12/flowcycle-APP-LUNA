@@ -4,7 +4,8 @@ import 'package:flowcycle/core/services/ai_service.dart';
 import 'package:flowcycle/features/ai_companion/ai_companion_screen.dart';
 import 'package:flowcycle/features/ai_companion/chat/ai_chat_screen.dart';
 import 'package:flowcycle/features/ai_companion/learn/ai_learning_section.dart';
-import 'package:flowcycle/features/ai_companion/widgets/ai_api_key_sheet.dart';
+import 'package:flowcycle/features/ai_companion/chat/widgets/ai_quick_chat_sheet.dart';
+import 'package:flowcycle/features/ai_companion/reminders/smart_reminders_sheet.dart';
 import 'package:flowcycle/features/learn/learn_screen.dart';
 import 'package:flowcycle/shared/models/app_mode.dart';
 import 'package:flowcycle/shared/models/user_profile.dart';
@@ -16,7 +17,7 @@ void main() {
 
   setUp(() {
     controller = CycleDataController();
-    AiService.instance.setApiKey(null); // Reset API key before tests
+    AiService.instance.setApiKey(null);
   });
 
   Widget buildTestable(Widget child) {
@@ -27,17 +28,17 @@ void main() {
 
   group('AI Service, Companion & Unified Learning Hub Comprehensive Test Suite', () {
     test(
-      '1. AiService: manages API key and generates cycle-aware clinical fallback responses',
+      '1. AiService: operates with configured Groq API key and generates cycle-aware clinical responses',
       () async {
         final aiService = AiService.instance;
-        expect(aiService.hasApiKey, isFalse);
-
-        aiService.setApiKey('test_gemini_key_123');
         expect(aiService.hasApiKey, isTrue);
-        expect(aiService.apiKey, 'test_gemini_key_123');
+        expect(aiService.apiKey, contains('gsk_'));
+
+        aiService.setApiKey('gsk_custom_key_123');
+        expect(aiService.apiKey, 'gsk_custom_key_123');
 
         aiService.setApiKey(null);
-        expect(aiService.hasApiKey, isFalse);
+        expect(aiService.hasApiKey, isTrue); // Reverts to default Groq key
 
         final profileTtc = UserProfile(
           name: 'Amina',
@@ -55,7 +56,7 @@ void main() {
           phaseName: 'Follicular Phase',
         );
         expect(foodReply, contains('Follicular Phase'));
-        expect(foodReply, contains('estrogen is rising'));
+        expect(foodReply, contains('Estrogen is rising'));
 
         // Test fertility response in TTC mode
         final fertilityReply = await aiService.generateAiResponse(
@@ -64,8 +65,8 @@ void main() {
           cycleDay: 13,
           phaseName: 'Ovulatory Phase',
         );
-        expect(fertilityReply, contains('Trying to Conceive'));
-        expect(fertilityReply, contains('conception window'));
+        expect(fertilityReply, contains('Conception Timing'));
+        expect(fertilityReply, contains('Prime Window'));
 
         // Test sleep response
         final sleepReply = await aiService.generateAiResponse(
@@ -78,38 +79,8 @@ void main() {
       },
     );
 
-    testWidgets('2. AiApiKeySheet: inputs, saves, and clears Gemini API key', (
-      tester,
-    ) async {
-      bool keyUpdated = false;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: AiApiKeySheet(onKeyUpdated: () => keyUpdated = true),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('AI Intelligence Configuration'), findsOneWidget);
-      expect(find.text('Active: FlowCycle Clinical Engine'), findsOneWidget);
-
-      final textField = find.byType(TextField);
-      await tester.enterText(textField, 'AIzaSyDemoKey12345');
-      await tester.pumpAndSettle();
-
-      // Tap Save
-      await tester.tap(find.text('Save & Activate AI Engine'));
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.pumpAndSettle();
-
-      expect(keyUpdated, isTrue);
-      expect(AiService.instance.apiKey, 'AIzaSyDemoKey12345');
-    });
-
     testWidgets(
-      '3. AiCompanionScreen: header opens AI API Key sheet and smart reminders',
+      '2. AiCompanionScreen: header has NO key button and opens smart reminders on bell tap',
       (tester) async {
         tester.view.physicalSize = const Size(1080, 2400);
         tester.view.devicePixelRatio = 2.0;
@@ -120,17 +91,41 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('AI Companion'), findsOneWidget);
-        expect(find.byIcon(Icons.vpn_key_outlined), findsOneWidget);
+        // Verify key icon is completely removed
+        expect(find.byIcon(Icons.vpn_key_outlined), findsNothing);
         expect(find.byType(AiLearningSection), findsOneWidget);
 
         // Verify no "min read" badge is present in the learning section
         expect(find.textContaining('min read'), findsNothing);
 
-        // Tap AI Key button
-        await tester.tap(find.byIcon(Icons.vpn_key_outlined));
+        // Tap Notifications Bell button
+        await tester.tap(find.byIcon(Icons.notifications_outlined));
         await tester.pumpAndSettle();
 
-        expect(find.byType(AiApiKeySheet), findsOneWidget);
+        expect(find.byType(SmartRemindersSheet), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      '3. AiQuickChatSheet: opens seamlessly without API key prompt button',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 2.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          buildTestable(
+            const Scaffold(
+              body: AiQuickChatSheet(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('FlowCycle AI'), findsOneWidget);
+        expect(find.byIcon(Icons.key_rounded), findsNothing);
+        expect(find.textContaining('Luna'), findsOneWidget);
       },
     );
 
