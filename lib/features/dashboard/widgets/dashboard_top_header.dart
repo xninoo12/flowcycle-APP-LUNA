@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 
@@ -24,6 +25,7 @@ class DashboardTopHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveSubtitle = subtitle ?? "You're in tune with your body ✨";
+    final notificationService = NotificationService.instance;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,63 +123,78 @@ class DashboardTopHeader extends StatelessWidget {
 
         const SizedBox(width: AppSpacing.sm),
 
-        // 2. Notifications Bell with Pink Unread Badge
-        Semantics(
-          button: true,
-          label: 'Notifications',
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: Border.all(
-                    color: const Color(0xFFF3E8EE),
-                    width: 1.0,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1E1A3C).withValues(alpha: 0.03),
-                      blurRadius: 8.0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Color(0xFF1E1A3C),
-                    size: 22.0,
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  tooltip: 'Notifications',
-                  onPressed: onNotificationTap ?? () {},
-                ),
-              ),
-              Positioned(
-                top: 4.0,
-                right: 5.0,
-                child: Container(
-                  width: 8.0,
-                  height: 8.0,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF4D79),
-                    shape: BoxShape.circle,
-                    border: Border.all(
+        // 2. Notifications Bell with Dynamic Pink Unread Badge
+        ListenableBuilder(
+          listenable: notificationService,
+          builder: (context, _) {
+            final unread = notificationService.unreadCount;
+            return Semantics(
+              button: true,
+              label: 'Notifications',
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 40.0,
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
                       color: Colors.white,
-                      width: 1.5,
+                      border: Border.all(
+                        color: const Color(0xFFF3E8EE),
+                        width: 1.0,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1E1A3C).withValues(alpha: 0.03),
+                          blurRadius: 8.0,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Color(0xFF1E1A3C),
+                        size: 22.0,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Notifications',
+                      onPressed: onNotificationTap ?? () {},
                     ),
                   ),
-                ),
+                  if (unread > 0)
+                    Positioned(
+                      top: 2.0,
+                      right: 2.0,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF4D79),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Text(
+                          '$unread',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ],
     );
   }
 }
+

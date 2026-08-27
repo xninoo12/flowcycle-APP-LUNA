@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flowcycle/core/services/notification_service.dart';
 import 'package:flowcycle/features/profile/profile_screen.dart';
 import 'package:flowcycle/features/profile/widgets/app_preferences_sheet.dart';
 import 'package:flowcycle/features/profile/widgets/edit_profile_sheet.dart';
@@ -107,6 +108,8 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
+      NotificationService.instance.updateDiscreetMode(enabled: false);
+
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: RemindersSettingsSheet()),
@@ -116,15 +119,18 @@ void main() {
 
       expect(find.text('Reminders & Alerts'), findsOneWidget);
       expect(find.text('Period Prediction'), findsOneWidget);
-      expect(find.text('Fertile Window'), findsOneWidget);
+      expect(find.text('Fertile Window & Ovulation'), findsOneWidget);
 
       // Toggle switch
       final switches = find.byType(Switch);
       await tester.tap(switches.first);
       await tester.pumpAndSettle();
 
-      // Tap Send Test notification
-      await tester.tap(find.text('Send Test In-App Notification'));
+      // Scroll and Tap Send Test notification
+      final testBtn = find.byIcon(Icons.notifications_active_rounded);
+      await tester.ensureVisible(testBtn);
+      await tester.pumpAndSettle();
+      await tester.tap(testBtn);
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackBar), findsOneWidget);

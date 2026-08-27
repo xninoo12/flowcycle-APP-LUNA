@@ -23,11 +23,15 @@ class _RemindersSettingsScreenState extends State<RemindersSettingsScreen> {
   bool _latePeriodAlert = true;
   bool _dailyLogReminder = true;
   TimeOfDay _dailyLogTime = const TimeOfDay(hour: 21, minute: 0);
+  bool _pillReminder = false;
+  TimeOfDay _pillTime = const TimeOfDay(hour: 9, minute: 0);
+  String _pillName = 'Daily Pill';
   bool _bbtReminder = false;
   TimeOfDay _bbtTime = const TimeOfDay(hour: 7, minute: 0);
   bool _dailyTips = true;
   bool _weeklyDigest = false;
   bool _emailAlerts = false;
+  bool _discreetMode = false;
 
   @override
   void initState() {
@@ -38,7 +42,11 @@ class _RemindersSettingsScreenState extends State<RemindersSettingsScreen> {
     _ovulationAlert = svc.fertileWindowAlerts;
     _dailyLogReminder = svc.dailyLogReminders;
     _dailyLogTime = svc.dailyLogTime;
+    _pillReminder = svc.pillReminderEnabled;
+    _pillTime = svc.pillReminderTime;
+    _pillName = svc.pillName;
     _dailyTips = svc.aiHealthTips;
+    _discreetMode = svc.discreetMode;
   }
 
   void _syncNotificationService() {
@@ -47,7 +55,13 @@ class _RemindersSettingsScreenState extends State<RemindersSettingsScreen> {
     svc.updatePeriodAlerts(enabled: _periodAlert, daysBefore: days);
     svc.updateFertileWindowAlerts(enabled: _ovulationAlert);
     svc.updateDailyLogReminder(enabled: _dailyLogReminder, time: _dailyLogTime);
+    svc.updatePillReminder(
+      enabled: _pillReminder,
+      time: _pillTime,
+      name: _pillName,
+    );
     svc.updateAiHealthTips(enabled: _dailyTips);
+    svc.updateDiscreetMode(enabled: _discreetMode);
   }
 
   Future<void> _pickTime({
@@ -212,6 +226,76 @@ class _RemindersSettingsScreenState extends State<RemindersSettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Discreet Lock-Screen Privacy Banner
+              Container(
+                padding: const EdgeInsets.all(14.0),
+                decoration: BoxDecoration(
+                  color: _discreetMode ? const Color(0xFFEBFDF5) : Colors.white,
+                  borderRadius: AppRadius.large,
+                  border: Border.all(
+                    color: _discreetMode
+                        ? const Color(0xFF10B981).withValues(alpha: 0.5)
+                        : const Color(0xFFE8E2EE),
+                    width: _discreetMode ? 1.5 : 1.0,
+                  ),
+                  boxShadow: AppShadows.subtle,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _discreetMode
+                            ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                            : const Color(0xFFF1EDF8),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.shield_outlined,
+                        color: _discreetMode
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF7C5CE7),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12.0),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Discreet Lock-Screen Mode',
+                            style: AppTextStyles.body.copyWith(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF1E1A3C),
+                            ),
+                          ),
+                          const SizedBox(height: 2.0),
+                          Text(
+                            'Masks sensitive terms on lock screen with gentle self-care phrases',
+                            style: AppTextStyles.caption.copyWith(
+                              fontSize: 11.0,
+                              color: const Color(0xFF7A708A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch.adaptive(
+                      value: _discreetMode,
+                      activeColor: const Color(0xFF10B981),
+                      onChanged: (v) {
+                        setState(() => _discreetMode = v);
+                        _syncNotificationService();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
               // 1. Cycle Predictions
               _buildSectionHeader('CYCLE PREDICTIONS'),
               _buildSettingsCard([
@@ -281,7 +365,7 @@ class _RemindersSettingsScreenState extends State<RemindersSettingsScreen> {
               const SizedBox(height: 24),
 
               // 2. Daily Habits & Logging
-              _buildSectionHeader('DAILY HABITS & LOGGING'),
+              _buildSectionHeader('DAILY HABITS & MEDICATION'),
               _buildSettingsCard([
                 _buildSwitchTile(
                   title: 'Daily Log Reminder',
@@ -315,6 +399,48 @@ class _RemindersSettingsScreenState extends State<RemindersSettingsScreen> {
                                   _dailyLogTime.format(context),
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : null,
+                ),
+                const Divider(height: 24, color: Color(0xFFEFE9F3)),
+                _buildSwitchTile(
+                  title: 'Pill & Medication Reminder',
+                  subtitle: 'Daily reminder for your contraception or vitamins',
+                  value: _pillReminder,
+                  onChanged: (val) {
+                    setState(() => _pillReminder = val);
+                    _syncNotificationService();
+                  },
+                  actionRow: _pillReminder
+                      ? InkWell(
+                          onTap: () => _pickTime(
+                            initialTime: _pillTime,
+                            onPicked: (t) {
+                              setState(() => _pillTime = t);
+                              _syncNotificationService();
+                            },
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.access_time_rounded,
+                                  size: 14,
+                                  color: Color(0xFFEC4899),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '$_pillName: ${_pillTime.format(context)}',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: const Color(0xFFEC4899),
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),

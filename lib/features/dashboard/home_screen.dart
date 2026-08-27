@@ -6,6 +6,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../shared/models/app_mode.dart';
 import '../../shared/providers/app_scope.dart';
 import '../ai_companion/reminders/smart_reminders_sheet.dart';
+import '../profile/widgets/notification_center_sheet.dart';
 import 'models/cycle_dashboard_state.dart';
 import 'widgets/ai_companion_card.dart';
 import 'widgets/cycle_ring_card.dart';
@@ -80,6 +81,15 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       context.push(AppRoutes.profilePath);
     } catch (_) {}
+  }
+
+  void _openNotificationsCenter() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => const NotificationCenterSheet(),
+    );
   }
 
   void _openRemindersSheet() {
@@ -256,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? "You're in tune with your body ✨"
                       : "You're one step closer to your goal ✨",
                   onProfileTap: _navigateToProfile,
-                  onNotificationTap: _openRemindersSheet,
+                  onNotificationTap: _openNotificationsCenter,
                 ),
 
                 const SizedBox(height: 12.0),

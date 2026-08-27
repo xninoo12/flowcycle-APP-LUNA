@@ -9,6 +9,20 @@ void main() {
 
   setUp(() {
     service = NotificationService.instance;
+    // Reset defaults
+    service.updatePeriodAlerts(enabled: true, daysBefore: 2);
+    service.updateFertileWindowAlerts(enabled: true, daysBefore: 1);
+    service.updateDailyLogReminder(
+      enabled: true,
+      time: const TimeOfDay(hour: 20, minute: 0),
+    );
+    service.updatePillReminder(
+      enabled: false,
+      time: const TimeOfDay(hour: 9, minute: 0),
+      name: 'Daily Pill',
+    );
+    service.updateAiHealthTips(enabled: true);
+    service.updateDiscreetMode(enabled: false);
   });
 
   group('NotificationService Comprehensive Test Suite', () {
@@ -48,7 +62,7 @@ void main() {
       },
     );
 
-    test('2. Updates notification preferences and persists toggles', () {
+    test('2. Updates notification preferences, pill schedules, and persists toggles', () {
       service.updatePeriodAlerts(enabled: false, daysBefore: 3);
       expect(service.periodAlerts, isFalse);
       expect(service.periodDaysBefore, 3);
@@ -65,11 +79,76 @@ void main() {
       expect(service.dailyLogTime.hour, 21);
       expect(service.dailyLogTime.minute, 30);
 
+      service.updatePillReminder(
+        enabled: true,
+        time: const TimeOfDay(hour: 8, minute: 15),
+        name: 'Prenatal Vitamins',
+      );
+      expect(service.pillReminderEnabled, isTrue);
+      expect(service.pillReminderTime.hour, 8);
+      expect(service.pillReminderTime.minute, 15);
+      expect(service.pillName, 'Prenatal Vitamins');
+
       service.updateAiHealthTips(enabled: false);
       expect(service.aiHealthTips, isFalse);
+
+      service.updateDiscreetMode(enabled: true);
+      expect(service.discreetMode, isTrue);
     });
 
-    testWidgets('3. Triggers test in-app notification without error', (
+    test('3. Discreet mode masks sensitive terms in scheduled reminders', () {
+      service.updateDiscreetMode(enabled: true);
+      service.updatePillReminder(enabled: true);
+
+      final profile = UserProfile(
+        name: 'Amina',
+        mode: AppMode.cycleAwareness,
+        averageCycleLength: 28,
+        typicalPeriodDuration: 5,
+        lastPeriodStartDate: DateTime.now().subtract(const Duration(days: 5)),
+      );
+
+      final reminders = service.computeUpcomingReminders(profile);
+      final periodReminder = reminders.firstWhere(
+        (r) => r.type == ReminderType.periodOnset,
+      );
+      expect(periodReminder.title, 'FlowCycle: Time for self-care 🌸');
+
+      final fertileReminder = reminders.firstWhere(
+        (r) => r.type == ReminderType.fertileWindow,
+      );
+      expect(fertileReminder.title, 'FlowCycle: Daily rhythm update 🌿');
+
+      final pillReminder = reminders.firstWhere(
+        (r) => r.type == ReminderType.medicationPill,
+      );
+      expect(pillReminder.title, 'Daily Health Reminder 💊');
+    });
+
+    test('4. In-App Notification Inbox management works properly', () {
+      expect(service.inbox, isNotEmpty);
+      final initialUnread = service.unreadCount;
+
+      service.markAllAsRead();
+      expect(service.unreadCount, 0);
+
+      service.addNotification(
+        title: 'New Health Insight ✨',
+        body: 'Your luteal phase nutrition tip is ready.',
+        type: ReminderType.aiHealthTip,
+      );
+      expect(service.unreadCount, 1);
+      expect(service.inbox.first.title, 'New Health Insight ✨');
+
+      final firstId = service.inbox.first.id;
+      service.markAsRead(firstId);
+      expect(service.unreadCount, 0);
+
+      service.deleteNotification(firstId);
+      expect(service.inbox.any((item) => item.id == firstId), isFalse);
+    });
+
+    testWidgets('5. Triggers test in-app notification without error', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -98,3 +177,4 @@ void main() {
     });
   });
 }
+

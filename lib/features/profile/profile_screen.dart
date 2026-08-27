@@ -11,6 +11,7 @@ import 'widgets/app_preferences_sheet.dart';
 import 'widgets/contact_support_dialog.dart';
 import 'widgets/edit_profile_sheet.dart';
 import 'widgets/help_center_sheet.dart';
+import 'widgets/notification_center_sheet.dart';
 import 'widgets/pin_lock_dialog.dart';
 import 'widgets/profile_header_hero.dart';
 import 'widgets/profile_metrics_row.dart';
@@ -52,6 +53,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => const EditProfileSheet(),
+    );
+  }
+
+  void _openNotificationsCenter() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => const NotificationCenterSheet(),
     );
   }
 
@@ -245,7 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ProfileHeaderHero(
                   userName: userProfile.name,
                   onEditName: _openEditProfileSheet,
-                  onNotificationTap: _openRemindersSheet,
+                  onNotificationTap: _openNotificationsCenter,
                   onSettingsTap: _openPreferencesSheet,
                   onAvatarTap: _openEditProfileSheet,
                 ),
