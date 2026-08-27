@@ -125,15 +125,11 @@ class _CyclesSubscreenState extends State<CyclesSubscreen> {
   @override
   Widget build(BuildContext context) {
     final controller = AppScope.of(context);
-    final userProfile = controller.userProfile;
     final cycleState = controller.calculateCurrentCycleState();
     final totalDays = cycleState.totalDays;
     final currentCycleDay = cycleState.currentDay;
 
-    final pastCycles = CycleHistoryTableCard.generatePastCycles(
-      lastPeriodStartDate: userProfile.lastPeriodStartDate,
-      averageCycleLength: userProfile.averageCycleLength,
-    );
+    final pastCycles = <PastCycleEntry>[];
 
     const phaseNames = ['Period', 'Follicular', 'Ovulation', 'Luteal'];
 
@@ -233,16 +229,9 @@ class _CyclesSubscreenState extends State<CyclesSubscreen> {
                 if (_selectedSubTabId == 'current_cycle' || _selectedSubTabId == 'history')
                   CycleHistoryTableCard(
                     history: pastCycles,
-                    onSeeAll: () => _openCycleEntryDetail(
-                      pastCycles.isNotEmpty
-                          ? pastCycles.first
-                          : const PastCycleEntry(
-                              cycleNumber: 6,
-                              dateRange: 'Apr 6 – May 3',
-                              lengthDays: 28,
-                              ovulationDate: 'Apr 20',
-                            ),
-                    ),
+                    onSeeAll: pastCycles.isNotEmpty
+                        ? () => _openCycleEntryDetail(pastCycles.first)
+                        : null,
                     onRowTap: _openCycleEntryDetail,
                   ),
 

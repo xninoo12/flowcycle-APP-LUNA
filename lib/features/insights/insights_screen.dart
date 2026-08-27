@@ -185,18 +185,17 @@ class _InsightsScreenState extends State<InsightsScreen> {
       entry.date.isBefore(userProfile.lastPeriodStartDate.add(Duration(days: totalDays + 1)))
     ).toList();
     final loggedIntercourse = cycleLogs.where((l) => l.intercourse == true).length;
-    final displayIntercourse = loggedIntercourse > 3 ? loggedIntercourse : 3;
+    final displayIntercourse = loggedIntercourse;
 
     final loggedDaysCount = cycleLogs.length;
-    final int computedConsistency = currentCycleDay > 0
-        ? ((loggedDaysCount / currentCycleDay) * 100).clamp(20, 100).toInt()
-        : 80;
-    final displayConsistency = computedConsistency >= 80 ? computedConsistency : 80;
+    final int displayConsistency = currentCycleDay > 0
+        ? ((loggedDaysCount / currentCycleDay) * 100).clamp(0, 100).toInt()
+        : 0;
 
-    final todayLog = controller.getTodayLog();
-    final symptomsSummary = todayLog.symptoms.isNotEmpty && todayLog.symptoms.first != 'Bloating'
-        ? todayLog.symptoms.first
-        : 'Good';
+    final todayLog = controller.getLogForDate(DateTime.now());
+    final symptomsSummary = todayLog?.symptoms.isNotEmpty == true
+        ? todayLog!.symptoms.first
+        : (todayLog != null ? 'Logged' : 'No logs yet');
 
     return Scaffold(
       body: SafeArea(

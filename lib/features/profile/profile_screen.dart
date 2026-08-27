@@ -256,8 +256,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ProfileMetricsRow(
                   currentCycleDay: currentCycleDay,
                   totalCycleDays: totalDays,
-                  sexLoggedCount: 4,
-                  daysLoggedCount: 21,
+                  sexLoggedCount: controller.logEntries.values
+                      .where((l) => l.intercourse == true)
+                      .length,
+                  daysLoggedCount: controller.logEntries.length,
                   currentModeName: currentModeName,
                   onCycleDayTap: () {
                     try {

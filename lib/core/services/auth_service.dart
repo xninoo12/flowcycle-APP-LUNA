@@ -67,12 +67,7 @@ class AuthService {
   static AuthService get instance => _instance;
 
   AuthService._internal() {
-    _currentUser = AuthUser(
-      uid: 'user_flowcycle_001',
-      email: 'amina@flowcycle.app',
-      displayName: 'Amina',
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-    );
+    _currentUser = null;
   }
 
   FirebaseAuth? _firebaseAuth;

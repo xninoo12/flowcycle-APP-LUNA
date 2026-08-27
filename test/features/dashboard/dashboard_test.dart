@@ -45,7 +45,7 @@ void main() {
 
         // 1. Top Header with Avatar, Greeting, Notifications
         expect(find.byType(DashboardTopHeader), findsOneWidget);
-        expect(find.text('Good morning, Amina'), findsOneWidget);
+        expect(find.textContaining('Good morning'), findsOneWidget);
         expect(find.text('👋'), findsOneWidget);
         expect(find.text("You're in tune with your body ✨"), findsOneWidget);
 
@@ -104,7 +104,7 @@ void main() {
 
         // 1. Top Header with TTC Subtitle
         expect(find.byType(DashboardTopHeader), findsOneWidget);
-        expect(find.text('Good morning, Amina'), findsOneWidget);
+        expect(find.textContaining('Good morning'), findsOneWidget);
         expect(
           find.text("You're one step closer to your goal ✨"),
           findsOneWidget,

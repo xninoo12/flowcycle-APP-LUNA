@@ -63,13 +63,11 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      String? selectedChat;
       bool newChatTriggered = false;
 
       await tester.pumpWidget(
         buildTestable(
           AiChatHistorySheet(
-            onChatSelected: (c) => selectedChat = c,
             onNewChat: () => newChatTriggered = true,
           ),
         ),
@@ -77,21 +75,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Conversations'), findsOneWidget);
-      expect(find.text('Basal Body Temperature & Ovulation Shift'), findsOneWidget);
+      expect(find.text('Start New Conversation ✦'), findsOneWidget);
 
-      // Select conversation
-      await tester.tap(find.text('Basal Body Temperature & Ovulation Shift'));
+      // Trigger Start New Conversation
+      await tester.tap(find.text('Start New Conversation ✦'));
       await tester.pumpAndSettle();
-      expect(selectedChat, 'Basal Body Temperature & Ovulation Shift');
-
-      // Test New Chat Button if available
-      if (find.byIcon(Icons.add_comment_rounded).evaluate().isNotEmpty) {
-        await tester.tap(find.byIcon(Icons.add_comment_rounded));
-        await tester.pumpAndSettle();
-        expect(newChatTriggered, isTrue);
-      } else {
-        expect(newChatTriggered, isFalse);
-      }
+      expect(newChatTriggered, isTrue);
     });
 
     testWidgets('3. AiMedicalDisclaimerSheet: renders safety notices & acknowledges', (

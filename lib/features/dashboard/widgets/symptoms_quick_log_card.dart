@@ -13,7 +13,7 @@ class SymptomsQuickLogCard extends StatelessWidget {
 
   const SymptomsQuickLogCard({
     super.key,
-    this.activeSymptoms = const {'Bloating', 'Cramps', 'Breast', 'Mood'},
+    this.activeSymptoms = const {},
     this.onToggleSymptom,
     this.onEditTap,
     this.onAddSymptomTap,

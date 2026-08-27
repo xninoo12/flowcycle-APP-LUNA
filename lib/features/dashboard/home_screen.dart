@@ -232,7 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedSymptoms: todayLog != null ? todayLog.symptoms.toSet() : {},
         );
 
-    final userName = userProfile != null ? userProfile.name : 'Amina';
+    final userName =
+        userProfile?.name.isNotEmpty == true ? userProfile!.name : 'Friend';
 
     return Scaffold(
       backgroundColor: isCycleAwareness

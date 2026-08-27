@@ -205,10 +205,8 @@ void main() {
         expect(controller.userProfile.ttcDuration, 'Less than 3 months');
         expect(controller.userProfile.mode, AppMode.tryingToConceive);
 
-        // Verify period logs are seeded for the chosen last period start date
-        final seededLog = controller.getLogForDate(testDate);
-        expect(seededLog != null, isTrue);
-        expect(seededLog!.flow, 'Heavy');
+        // Verify profile parameters are configured cleanly
+        expect(controller.userProfile.lastPeriodStartDate, testDate);
 
         // Wait for transition delay
         await tester.pump(const Duration(milliseconds: 200));

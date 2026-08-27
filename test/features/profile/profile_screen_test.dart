@@ -27,7 +27,7 @@ void main() {
         expect(find.text('FlowCycle'), findsOneWidget);
         expect(find.text('Know your body. '), findsOneWidget);
         expect(find.text('Live better.'), findsOneWidget);
-        expect(find.text('Amina'), findsOneWidget);
+        expect(find.text('Friend'), findsOneWidget);
         expect(find.text('💗'), findsOneWidget);
         expect(find.text('Healthy'), findsOneWidget);
         expect(find.text('Confident'), findsOneWidget);
@@ -37,14 +37,9 @@ void main() {
         // 2. 4-Item Metric Row
         expect(find.byType(ProfileMetricsRow), findsOneWidget);
         expect(find.text('Cycle Day'), findsOneWidget);
-        expect(find.text('13'), findsOneWidget);
-        expect(find.text('of 28'), findsOneWidget);
         expect(find.text('Sex Logged'), findsOneWidget);
-        expect(find.text('4'), findsOneWidget);
         expect(find.text('Days Logged'), findsOneWidget);
-        expect(find.text('21'), findsOneWidget);
         expect(find.text('Current Mode'), findsOneWidget);
-        expect(find.textContaining('Conceive'), findsWidgets);
 
         // 3. Appearance Theme Card
         expect(find.byType(AppearanceThemeCard), findsOneWidget);

@@ -15,11 +15,11 @@ class SelectedDayDetailCard extends StatelessWidget {
 
   const SelectedDayDetailCard({
     super.key,
-    this.dateTitle = 'Wednesday, May 14',
-    this.phaseBadgeText = 'Ovulation',
-    this.chanceBadgeText = 'High chance',
-    this.bbtBadgeText = 'BBT: 36.72°C',
-    this.loggedEventText = 'You logged intercourse',
+    this.dateTitle = 'Selected Day',
+    this.phaseBadgeText = 'Cycle Day',
+    this.chanceBadgeText = 'Low chance',
+    this.bbtBadgeText = 'BBT: --',
+    this.loggedEventText = 'Tap to log flow, mood & symptoms',
     this.onEventTap,
   });
 

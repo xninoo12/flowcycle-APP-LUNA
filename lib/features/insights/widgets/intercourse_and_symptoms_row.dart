@@ -13,10 +13,10 @@ class IntercourseAndSymptomsRow extends StatelessWidget {
 
   const IntercourseAndSymptomsRow({
     super.key,
-    this.intercourseTimes = 3,
-    this.intercourseDiff = 1,
-    this.consistencyPercent = 80,
-    this.symptomsStatus = 'Good',
+    this.intercourseTimes = 0,
+    this.intercourseDiff = 0,
+    this.consistencyPercent = 0,
+    this.symptomsStatus = 'No logs yet',
     this.onIntercourseTap,
     this.onConsistencyTap,
     this.onSymptomsTap,

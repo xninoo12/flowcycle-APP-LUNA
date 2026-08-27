@@ -23,42 +23,14 @@ class AiChatSummary {
 
 /// "Let's talk" Chat History Section for AI Companion screen.
 class AiChatHistorySection extends StatelessWidget {
+  final List<AiChatSummary> chats;
   final VoidCallback? onNewChat;
   final ValueChanged<AiChatSummary>? onChatSelected;
   final VoidCallback? onViewAllChats;
 
-  static const List<AiChatSummary> defaultChats = [
-    AiChatSummary(
-      id: '1',
-      title: 'Fertile window & chances',
-      snippet: 'You asked about your chances this cycle...',
-      timestamp: '10:30 AM',
-      icon: Icons.chat_bubble_outline_rounded,
-      iconColor: Color(0xFF8B5CF6),
-      iconBgColor: Color(0xFFEDE9FE),
-    ),
-    AiChatSummary(
-      id: '2',
-      title: 'Nutrition for fertility',
-      snippet: 'Here are some fertility-boosting foods...',
-      timestamp: 'Yesterday',
-      icon: Icons.ramen_dining_outlined,
-      iconColor: Color(0xFFE84855),
-      iconBgColor: Color(0xFFFFEEF0),
-    ),
-    AiChatSummary(
-      id: '3',
-      title: 'Managing stress',
-      snippet: "Let's talk about simple ways to manage stress...",
-      timestamp: '2 days ago',
-      icon: Icons.self_improvement_rounded,
-      iconColor: Color(0xFF10B981),
-      iconBgColor: Color(0xFFE8F5E9),
-    ),
-  ];
-
   const AiChatHistorySection({
     super.key,
+    this.chats = const [],
     this.onNewChat,
     this.onChatSelected,
     this.onViewAllChats,
@@ -125,19 +97,61 @@ class AiChatHistorySection extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            children: [
-              ...defaultChats.map((chat) => _buildChatRow(chat)),
+          child: chats.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 44.0,
+                        height: 44.0,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFDF2F4),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            color: Color(0xFFFF4D6D),
+                            size: 22.0,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                      const Text(
+                        'Start your first conversation ✨',
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1E1A3C),
+                        ),
+                      ),
+                      const SizedBox(height: 4.0),
+                      const Text(
+                        'Ask FlowCycle AI anything about your cycle, fertile window, nutrition, or symptoms.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          color: Color(0xFF7A708A),
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
+                  children: [
+                    ...chats.map((chat) => _buildChatRow(chat)),
 
-              const Divider(height: 1.0, color: Color(0xFFF1ECF5)),
+                    const Divider(height: 1.0, color: Color(0xFFF1ECF5)),
 
-              // 3. "View all chats →"
-              InkWell(
-                onTap: onViewAllChats,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20.0),
-                  bottomRight: Radius.circular(20.0),
-                ),
+                    // 3. "View all chats →"
+                    InkWell(
+                      onTap: onViewAllChats,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20.0),
+                        bottomRight: Radius.circular(20.0),
+                      ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Row(

@@ -73,76 +73,17 @@ class CycleDataController extends ChangeNotifier {
   void _initDefaultState() {
     final now = DateTime.now();
     _userProfile = UserProfile(
-      name: 'Amina',
+      name: 'Friend',
       averageCycleLength: 28,
       typicalPeriodDuration: 5,
-      lastPeriodStartDate: now.subtract(const Duration(days: 12)),
-      mode: AppMode.tryingToConceive,
-      focusGoal: 'Track my cycle & fertile window',
-      cycleGoals: const ['Understand my cycle'],
+      lastPeriodStartDate: now.subtract(const Duration(days: 5)),
+      mode: AppMode.cycleAwareness,
+      focusGoal: 'Track my cycle & health',
+      cycleGoals: const [],
       ttcDuration: 'Just starting',
     );
     _currentMode = _userProfile.mode;
-
-    // Seed default baseline entries for today and recent days
-    final todayKey = _formatDateKey(now);
-    _logEntries[todayKey] = DailyLogEntry(
-      date: now,
-      mood: 'Good',
-      flow: 'Light',
-      symptoms: const ['Bloating', 'Cramps'],
-      sleepRating: 4,
-      sleepDuration: '7h 20m',
-      energyLevel: 'Medium',
-      intercourse: true,
-    );
-
-    // Baseline historical day
-    final yesterday = now.subtract(const Duration(days: 1));
-    _logEntries[_formatDateKey(yesterday)] = DailyLogEntry(
-      date: yesterday,
-      mood: 'Great',
-      flow: 'Light',
-      symptoms: const ['Bloating'],
-      sleepRating: 5,
-      sleepDuration: '8h 00m',
-      energyLevel: 'High',
-      intercourse: false,
-    );
-
-    // Seed historical period days
-    _seedPeriodLogs(
-      _userProfile.lastPeriodStartDate,
-      _userProfile.typicalPeriodDuration,
-    );
-  }
-
-  void _seedPeriodLogs(DateTime startDate, int duration) {
-    for (int i = 0; i < duration; i++) {
-      final date = startDate.add(Duration(days: i));
-      final key = _formatDateKey(date);
-
-      String flow = 'Medium';
-      if (i == 0 || i == 1) {
-        flow = 'Heavy';
-      } else if (i == 2) {
-        flow = 'Medium';
-      } else if (i == 3) {
-        flow = 'Light';
-      } else {
-        flow = 'Spotting';
-      }
-
-      _logEntries[key] = DailyLogEntry(
-        date: date,
-        mood: i == 0 ? 'Tired' : 'Good',
-        flow: flow,
-        symptoms: i < 2 ? const ['Cramps', 'Bloating'] : const ['Bloating'],
-        sleepRating: 4,
-        sleepDuration: '7h 20m',
-        energyLevel: i < 2 ? 'Low' : 'Medium',
-      );
-    }
+    _logEntries.clear();
   }
 
   static String _formatDateKey(DateTime date) {
@@ -172,9 +113,7 @@ class CycleDataController extends ChangeNotifier {
     );
 
     _currentMode = mode;
-    _seedPeriodLogs(lastPeriodStartDate, typicalPeriodDuration);
     LocalDatabaseService.instance.saveProfile(_userProfile);
-    LocalDatabaseService.instance.saveAllDailyLogs(_logEntries.values);
 
     notifyListeners();
   }
@@ -203,14 +142,6 @@ class CycleDataController extends ChangeNotifier {
 
     if (mode != null && mode != _currentMode) {
       _currentMode = mode;
-    }
-
-    if (lastPeriodStartDate != null) {
-      _seedPeriodLogs(
-        lastPeriodStartDate,
-        typicalPeriodDuration ?? _userProfile.typicalPeriodDuration,
-      );
-      LocalDatabaseService.instance.saveAllDailyLogs(_logEntries.values);
     }
 
     LocalDatabaseService.instance.saveProfile(_userProfile);
@@ -251,20 +182,26 @@ class CycleDataController extends ChangeNotifier {
     return getLogForDate(targetDate);
   }
 
-  /// Retrieve today's log entry or fallback default
+  /// Retrieve today's log entry (or clean blank baseline if not yet logged)
   DailyLogEntry getTodayLog() {
     final today = DateTime.now();
     return getLogForDate(today) ??
         DailyLogEntry(
           date: today,
-          mood: 'Good',
-          flow: 'Light',
-          symptoms: const ['Bloating', 'Cramps'],
-          sleepRating: 4,
-          sleepDuration: '7h 20m',
-          energyLevel: 'Medium',
-          intercourse: true,
+          mood: 'Calm',
+          flow: 'None',
+          symptoms: const [],
+          sleepRating: 3,
+          sleepDuration: '7h 00m',
+          energyLevel: 'Balanced',
+          intercourse: false,
         );
+  }
+
+  /// Whether user has submitted a daily log today
+  bool get hasLoggedToday {
+    final today = DateTime.now();
+    return getLogForDate(today) != null;
   }
 
   /// Calculate live cycle dashboard state from user profile and today's log

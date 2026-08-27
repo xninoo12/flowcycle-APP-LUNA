@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/router/route_names.dart';
-import '../../core/data/demo_data_generator.dart';
+import '../../core/data/app_data_manager.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -31,14 +31,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _handleLoadDemoData() {
+  void _handleResetAppData() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-        title: const Text('Load Demo History 📊', style: TextStyle(fontWeight: FontWeight.w800)),
+        title: const Text('Reset All App Data 🔄', style: TextStyle(fontWeight: FontWeight.w800)),
         content: const Text(
-          'This will populate 6 months (~180 days) of realistic historical cycles, biphasic BBT curves, and symptoms for testing Insights & Patterns.',
+          'This will clear all logged symptoms, cycle parameters, and cached entries to return the app to a pristine empty state.',
         ),
         actions: [
           TextButton(
@@ -48,9 +48,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              await DemoDataGenerator.instance.populate6MonthDemoHistory();
+              final controller = AppScope.read(context);
+              controller.resetToDefaults();
+              await AppDataManager.instance.handleAccountPurge();
               if (mounted) {
-                _showFeedback('6-Month Demo History loaded successfully! ✨');
+                _showFeedback('App reset to fresh empty state! ✨');
               }
             },
             style: ElevatedButton.styleFrom(
@@ -58,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
             ),
-            child: const Text('Load Data'),
+            child: const Text('Reset Data'),
           ),
         ],
       ),
@@ -176,17 +178,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               const SizedBox(height: 16.0),
 
-              // 3. Developer & Demo Tools
+              // 3. Data Management
               ProfileSectionGroup(
-                sectionTitle: 'Developer & Testing Tools',
+                sectionTitle: 'Data Management',
                 items: [
                   ProfileRowItem(
-                    title: 'Load 6-Month Demo Data 📊',
-                    subtitle: 'Populate 180 days of realistic cycles, BBT & symptoms',
-                    icon: Icons.auto_graph_rounded,
+                    title: 'Reset All App Data 🔄',
+                    subtitle: 'Wipe all local records and return to fresh start',
+                    icon: Icons.delete_outline_rounded,
                     iconColor: const Color(0xFFE84D75),
                     iconBgColor: const Color(0xFFFFF0F5),
-                    onTap: _handleLoadDemoData,
+                    onTap: _handleResetAppData,
                   ),
                 ],
               ),

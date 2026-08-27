@@ -16,6 +16,12 @@ class AppScope extends InheritedNotifier<CycleDataController> {
     return scope?.notifier ?? CycleDataController.instance;
   }
 
+  /// Optional lookup of [CycleDataController], falling back to singleton.
+  static CycleDataController maybeOf(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<AppScope>();
+    return scope?.notifier ?? CycleDataController.instance;
+  }
+
   /// Access the controller without registering a rebuild dependency.
   static CycleDataController read(BuildContext context) {
     final scope = context.getInheritedWidgetOfExactType<AppScope>();

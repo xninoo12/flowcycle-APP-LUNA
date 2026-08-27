@@ -48,7 +48,7 @@ void main() {
       expect(LocalDatabaseService.instance.currentUserScope, isNull);
     });
 
-    test('2. handleOnboardingCompletion creates profile, synthesizes 3-cycle baseline history, & saves data', () async {
+    test('2. handleOnboardingCompletion creates profile, configures cycle parameters, & saves data cleanly', () async {
       final now = DateTime.now();
       final onboardingState = OnboardingState(
         selectedMode: AppMode.tryingToConceive,
@@ -72,13 +72,8 @@ void main() {
       expect(savedProfile?.mode, AppMode.tryingToConceive);
       expect(savedProfile?.averageCycleLength, 29);
 
-      // Verify 3 cycles of historical period logs were synthesized (3 * 5 = 15 logs)
-      final allLogs = LocalDatabaseService.instance.getAllLogs();
-      expect(allLogs.length, greaterThanOrEqualTo(15));
-
       // Verify controller in-memory state is synchronized
       expect(CycleDataController.instance.currentMode, AppMode.tryingToConceive);
-      expect(CycleDataController.instance.logEntries.length, greaterThanOrEqualTo(15));
     });
 
     test('3. handleDailyLogEntry commits 16 biomarkers and detects period onset dynamically', () async {

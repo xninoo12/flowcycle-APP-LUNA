@@ -104,17 +104,6 @@ class AppDataManager extends ChangeNotifier {
     await LocalDatabaseService.instance.saveProfile(profile);
     CycleDataController.instance.updateProfile(profile);
 
-    // Synthesize historical period logs across 3 previous cycles
-    final List<DailyLogEntry> seededLogs = _generateHistoricalPeriodLogs(
-      mostRecentPeriodStart: lastPeriodDate,
-      cycleLength: cycleLength,
-      periodDuration: periodDuration,
-      cyclesCount: 3,
-    );
-
-    await LocalDatabaseService.instance.saveAllDailyLogs(seededLogs);
-    await CycleDataController.instance.reloadFromDatabase();
-
     // Schedule predictive smart reminders
     final nextPeriodDate = lastPeriodDate.add(Duration(days: cycleLength));
     final fertileStartDate = lastPeriodDate.add(Duration(days: (cycleLength - 14) - 5));
@@ -244,45 +233,5 @@ class AppDataManager extends ChangeNotifier {
     await NotificationService.instance.cancelAllReminders();
     await CycleDataController.instance.reloadFromDatabase();
     notifyListeners();
-  }
-
-  // ===========================================================================
-  // Internal Helpers
-  // ===========================================================================
-
-  List<DailyLogEntry> _generateHistoricalPeriodLogs({
-    required DateTime mostRecentPeriodStart,
-    required int cycleLength,
-    required int periodDuration,
-    required int cyclesCount,
-  }) {
-    final List<DailyLogEntry> logs = [];
-
-    for (int cycle = 0; cycle < cyclesCount; cycle++) {
-      final periodStart = mostRecentPeriodStart.subtract(Duration(days: cycle * cycleLength));
-
-      for (int day = 0; day < periodDuration; day++) {
-        final date = periodStart.add(Duration(days: day));
-        final flowIntensity = day == 0
-            ? 'Light'
-            : (day == 1 || day == 2)
-                ? 'Heavy'
-                : (day == 3)
-                    ? 'Medium'
-                    : 'Light';
-
-        logs.add(
-          DailyLogEntry(
-            date: date,
-            flow: flowIntensity,
-            mood: day < 2 ? 'Low Energy' : 'Calm',
-            symptoms: day < 2 ? const ['Cramps', 'Bloating'] : const ['Mild Bloating'],
-            energyLevel: day < 2 ? 'Low' : 'Medium',
-          ),
-        );
-      }
-    }
-
-    return logs;
   }
 }

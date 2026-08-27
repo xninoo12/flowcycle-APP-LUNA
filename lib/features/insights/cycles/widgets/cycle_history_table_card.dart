@@ -66,32 +66,7 @@ class CycleHistoryTableCard extends StatelessWidget {
     return list;
   }
 
-  static const List<PastCycleEntry> defaultHistory = [
-    PastCycleEntry(
-      cycleNumber: 6,
-      dateRange: 'Apr 6 – May 3',
-      lengthDays: 28,
-      ovulationDate: 'Apr 20',
-    ),
-    PastCycleEntry(
-      cycleNumber: 5,
-      dateRange: 'Mar 9 – Apr 5',
-      lengthDays: 28,
-      ovulationDate: 'Mar 23',
-    ),
-    PastCycleEntry(
-      cycleNumber: 4,
-      dateRange: 'Feb 8 – Mar 8',
-      lengthDays: 29,
-      ovulationDate: 'Feb 22',
-    ),
-    PastCycleEntry(
-      cycleNumber: 3,
-      dateRange: 'Jan 12 – Feb 7',
-      lengthDays: 27,
-      ovulationDate: 'Jan 25',
-    ),
-  ];
+  static const List<PastCycleEntry> defaultHistory = [];
 
   const CycleHistoryTableCard({
     super.key,
@@ -102,6 +77,8 @@ class CycleHistoryTableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeHistory = history ?? defaultHistory;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -125,84 +102,121 @@ class CycleHistoryTableCard extends StatelessWidget {
                   color: const Color(0xFF1E1A3C),
                 ),
               ),
-              InkWell(
-                onTap: onSeeAll,
-                borderRadius: BorderRadius.circular(4.0),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                  child: Text(
-                    'See all',
-                    style: TextStyle(
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF6C5CE7),
+              if (activeHistory.isNotEmpty)
+                InkWell(
+                  onTap: onSeeAll,
+                  borderRadius: BorderRadius.circular(4.0),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                    child: Text(
+                      'See all',
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF6C5CE7),
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
 
           const SizedBox(height: AppSpacing.sm + 2.0),
 
-          // 2. Table Column Headers: Cycle, Dates, Length, Ovulation
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-            child: Row(
-              children: const [
-                SizedBox(
-                  width: 38.0,
-                  child: Text(
-                    'Cycle',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF8C7C92),
+          if (activeHistory.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 8.0),
+              child: Center(
+                child: Column(
+                  children: const [
+                    Icon(
+                      Icons.insights_rounded,
+                      size: 32.0,
+                      color: Color(0xFF6C5CE7),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      'Cycle 1 in progress 🌸',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E1A3C),
+                      ),
+                    ),
+                    SizedBox(height: 4.0),
+                    Text(
+                      'As you track and complete your cycles, your history and comparisons will appear here.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: Color(0xFF7A708A),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            // 2. Table Column Headers: Cycle, Dates, Length, Ovulation
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+              child: Row(
+                children: const [
+                  SizedBox(
+                    width: 38.0,
+                    child: Text(
+                      'Cycle',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF8C7C92),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 5,
-                  child: Text(
-                    'Dates',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF8C7C92),
+                  Expanded(
+                    flex: 5,
+                    child: Text(
+                      'Dates',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF8C7C92),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 4,
-                  child: Text(
-                    'Length',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF8C7C92),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      'Length',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF8C7C92),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 4,
-                  child: Text(
-                    'Ovulation',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF8C7C92),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      'Ovulation',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF8C7C92),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 14.0),
-              ],
+                  SizedBox(width: 14.0),
+                ],
+              ),
             ),
-          ),
 
-          const Divider(height: 1.0, color: Color(0xFFEFE9F3)),
+            const Divider(height: 1.0, color: Color(0xFFEFE9F3)),
 
-          // 3. Past Cycle Rows
-          ...(history ?? defaultHistory).map((entry) => _buildHistoryRow(entry)),
+            // 3. Past Cycle Rows
+            ...activeHistory.map((entry) => _buildHistoryRow(entry)),
+          ],
         ],
       ),
     );

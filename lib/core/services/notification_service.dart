@@ -121,30 +121,12 @@ class NotificationService extends ChangeNotifier {
     _inbox.addAll([
       InAppNotificationItem(
         id: 'notif_welcome',
-        title: 'Welcome to FlowCycle Notifications 🔔',
+        title: 'Welcome to FlowCycle 🌸',
         body:
-            'Smart cycle forecasts and personalized health prompts are now active.',
-        timestamp: now.subtract(const Duration(hours: 3)),
+            'Your personalized cycle tracking and wellness insights begin today.',
+        timestamp: now,
         type: ReminderType.aiHealthTip,
         isRead: false,
-      ),
-      InAppNotificationItem(
-        id: 'notif_phase_update',
-        title: 'Phase Insight: Follicular Energy 🌿',
-        body:
-            'Estrogen is rising! Ideal time for high-energy tasks and strength training.',
-        timestamp: now.subtract(const Duration(hours: 18)),
-        type: ReminderType.phaseShift,
-        isRead: false,
-      ),
-      InAppNotificationItem(
-        id: 'notif_privacy_reminder',
-        title: 'Discreet Mode Available 🛡️',
-        body:
-            'Enable Discreet Mode in Settings to mask sensitive terms on lock screen banners.',
-        timestamp: now.subtract(const Duration(days: 1, hours: 2)),
-        type: ReminderType.aiHealthTip,
-        isRead: true,
       ),
     ]);
   }

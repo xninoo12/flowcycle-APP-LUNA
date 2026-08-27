@@ -9,8 +9,8 @@ class IntercourseHistorySheet extends StatelessWidget {
 
   const IntercourseHistorySheet({
     super.key,
-    this.totalCount = 2,
-    this.monthName = 'May',
+    this.totalCount = 0,
+    this.monthName = 'This Month',
     this.year = 2025,
     this.onLogNewIntercourse,
   });
@@ -128,7 +128,7 @@ class IntercourseHistorySheet extends StatelessWidget {
 
               const SizedBox(height: 16.0),
 
-              // 4. Logged Entries List
+              // 4. Logged Entries List or Empty State
               const Text(
                 'Recorded Intimacy Events',
                 style: TextStyle(
@@ -139,21 +139,50 @@ class IntercourseHistorySheet extends StatelessWidget {
               ),
               const SizedBox(height: 10.0),
 
-              _buildIntercourseTile(
-                dateStr: 'Monday, May 19, 2025',
-                cycleDay: 'Cycle Day 19 (Fertile Window)',
-                type: 'Protected Intercourse 🛡️',
-                isHighFertility: true,
-              ),
-
-              const SizedBox(height: 8.0),
-
-              _buildIntercourseTile(
-                dateStr: 'Tuesday, May 13, 2025',
-                cycleDay: 'Cycle Day 13 (Pre-Ovulation)',
-                type: 'Unprotected Intercourse 💜',
-                isHighFertility: true,
-              ),
+              if (totalCount == 0)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAF7FC),
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: Border.all(color: const Color(0xFFF1ECF5)),
+                  ),
+                  child: Column(
+                    children: const [
+                      Icon(
+                        Icons.favorite_border_rounded,
+                        color: Color(0xFFE81B54),
+                        size: 28.0,
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        'No intimacy events logged this month',
+                        style: TextStyle(
+                          fontSize: 13.0,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1E1A3C),
+                        ),
+                      ),
+                      SizedBox(height: 4.0),
+                      Text(
+                        'Tap the button below to log intimacy and track fertility alignment.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: Color(0xFF7A708A),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                _buildIntercourseTile(
+                  dateStr: 'Recent Entry',
+                  cycleDay: 'Logged Intimacy',
+                  type: 'Protected / Intimate 💜',
+                  isHighFertility: true,
+                ),
 
               const SizedBox(height: 20.0),
 

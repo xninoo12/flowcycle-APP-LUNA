@@ -72,13 +72,10 @@ void main() {
           findsOneWidget,
         );
 
-        // 5. Cycle History Table Card
+        // 5. Cycle History Table Card (Clean empty state)
         expect(find.byType(CycleHistoryTableCard), findsOneWidget);
         expect(find.text('Cycle history'), findsOneWidget);
-        expect(find.text('See all'), findsOneWidget);
-        expect(find.text('Cycle'), findsOneWidget);
-        expect(find.text('Dates'), findsOneWidget);
-        expect(find.text('Length'), findsOneWidget);
+        expect(find.text('Cycle 1 in progress 🌸'), findsOneWidget);
 
         // 6. Consistency Banner
         expect(find.byType(CyclesConsistencyBanner), findsOneWidget);

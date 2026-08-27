@@ -21,32 +21,7 @@ class _AiChatHistorySheetState extends State<AiChatHistorySheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  static const List<_ChatRecord> _sampleChats = [
-    _ChatRecord(
-      title: 'Basal Body Temperature & Ovulation Shift',
-      preview: 'You asked about tracking BBT thermal shift vs LH surge timing...',
-      timeAgo: 'Today, 10:15 AM',
-      emoji: '🌡️',
-    ),
-    _ChatRecord(
-      title: 'Follicular Phase Nutrition & Seeds',
-      preview: 'Discussed seed cycling with flax and pumpkin seeds for estrogen...',
-      timeAgo: 'Yesterday',
-      emoji: '🥑',
-    ),
-    _ChatRecord(
-      title: 'Cervical Mucus Clarity & Fertile Window',
-      preview: 'Identified peak egg-white cervical fluid and optimal timing...',
-      timeAgo: '3 days ago',
-      emoji: '💧',
-    ),
-    _ChatRecord(
-      title: 'Luteal Phase Progesterone & Sleep',
-      preview: 'Tips on balancing progesterone with magnesium glycinate before bed...',
-      timeAgo: '1 week ago',
-      emoji: '🌙',
-    ),
-  ];
+  static const List<_ChatRecord> _sampleChats = [];
 
   @override
   void dispose() {

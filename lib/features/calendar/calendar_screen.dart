@@ -257,22 +257,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void _openQuickDayActionSheet(int day) {
     try {
       final controller = AppScope.read(context);
-      final logEntry = controller.getLogForDayNumber(day);
-      final currentMode = _localModeOverride ?? widget.initialMode ?? controller.currentMode;
       final date = DateTime(_selectedYear, _selectedMonth, day);
+      final logEntry = controller.getLogForDate(date);
+      final currentMode = _localModeOverride ?? widget.initialMode ?? controller.currentMode;
 
-      final isOvulation = day == 18;
-      final isPeriod = day >= 4 && day <= 8;
-      final isPreOvulation = day >= 12 && day <= 14;
-      final isFertile = (day >= 15 && day <= 17) || day == 19 || day == 20;
+      final profile = controller.userProfile;
+      final lastPeriod = profile.lastPeriodStartDate;
+      final cycleLen = profile.averageCycleLength;
+      final periodDuration = profile.typicalPeriodDuration;
 
+      final daysDiff = date.difference(DateTime(lastPeriod.year, lastPeriod.month, lastPeriod.day)).inDays;
+      final cycleDay = (daysDiff % cycleLen) + 1;
+      final ovulationDay = cycleLen - 14;
+
+      final hasPeriodLog = logEntry?.flow != null && logEntry!.flow != 'None';
       String phaseText = 'Luteal Phase';
-      if (isOvulation) {
+      if (cycleDay == ovulationDay) {
         phaseText = 'Ovulation Peak';
-      } else if (isPeriod) {
+      } else if (hasPeriodLog || (cycleDay > 0 && cycleDay <= periodDuration)) {
         phaseText = 'Menstrual Phase';
-      } else if (isPreOvulation || isFertile) {
+      } else if (cycleDay >= ovulationDay - 5 && cycleDay <= ovulationDay + 1) {
         phaseText = 'Fertile Window';
+      } else if (cycleDay <= ovulationDay - 6) {
+        phaseText = 'Follicular Phase';
       }
 
       showModalBottomSheet(
@@ -281,7 +288,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         backgroundColor: Colors.transparent,
         builder: (ctx) => QuickDayActionSheet(
           date: date,
-          cycleDayNumber: day,
+          cycleDayNumber: cycleDay > 0 ? cycleDay : day,
           phaseName: phaseText,
           initialLog: logEntry,
           mode: currentMode,
@@ -293,30 +300,37 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void _openDayDetailsModal(int day) {
     try {
       final controller = AppScope.read(context);
-      final logEntry = controller.getLogForDayNumber(day);
+      final date = DateTime(_selectedYear, _selectedMonth, day);
+      final logEntry = controller.getLogForDate(date);
       final currentMode =
           _localModeOverride ?? widget.initialMode ?? controller.currentMode;
 
-      final isOvulation = day == 18;
-      final isPeriod = day >= 4 && day <= 8;
-      final isPreOvulation = day >= 12 && day <= 14;
-      final isFertile = (day >= 15 && day <= 17) || day == 19 || day == 20;
+      final profile = controller.userProfile;
+      final lastPeriod = profile.lastPeriodStartDate;
+      final cycleLen = profile.averageCycleLength;
+      final periodDuration = profile.typicalPeriodDuration;
 
+      final daysDiff = date.difference(DateTime(lastPeriod.year, lastPeriod.month, lastPeriod.day)).inDays;
+      final cycleDay = (daysDiff % cycleLen) + 1;
+      final ovulationDay = cycleLen - 14;
+
+      final hasPeriodLog = logEntry?.flow != null && logEntry!.flow != 'None';
       String phaseText = 'Luteal Phase';
       String chanceText = 'Low chance';
 
-      if (isOvulation) {
+      if (cycleDay == ovulationDay) {
         phaseText = 'Ovulation Peak';
         chanceText = 'High chance (38%)';
-      } else if (isPeriod) {
+      } else if (hasPeriodLog || (cycleDay > 0 && cycleDay <= periodDuration)) {
         phaseText = 'Menstrual Phase';
         chanceText = 'Low chance';
-      } else if (isPreOvulation || isFertile) {
+      } else if (cycleDay >= ovulationDay - 5 && cycleDay <= ovulationDay + 1) {
         phaseText = 'Fertile Window';
         chanceText = 'High chance (26%)';
+      } else if (cycleDay <= ovulationDay - 6) {
+        phaseText = 'Follicular Phase';
+        chanceText = 'Medium-low chance';
       }
-
-      final date = DateTime(_selectedYear, _selectedMonth, day);
 
       showModalBottomSheet(
         context: context,
@@ -439,12 +453,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final weekdayAbbr = _getWeekdayAbbreviation(_selectedDay, _selectedMonth, _selectedYear);
     final monthAbbr = _getMonthAbbreviation(_selectedMonth);
 
-    // Contextual Phase Copy based on selected day
-    final isFertileWindow = (_selectedDay >= 12 && _selectedDay <= 20);
-    final isOvulationDay = _selectedDay == 18;
-    final isPeriodDay = _selectedDay >= 4 && _selectedDay <= 8;
+    // Dynamic cycle calculations from profile and logs
+    final controller = AppScope.of(context);
+    final selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+    final selectedLog = controller.getLogForDate(selectedDate);
+    final profile = controller.userProfile;
+    final lastPeriod = profile.lastPeriodStartDate;
+    final cycleLen = profile.averageCycleLength;
+    final periodDuration = profile.typicalPeriodDuration;
 
-    String badgeText = 'CYCLE DAY $_selectedDay';
+    final daysDiff = selectedDate.difference(DateTime(lastPeriod.year, lastPeriod.month, lastPeriod.day)).inDays;
+    final cycleDay = (daysDiff % cycleLen) + 1;
+    final ovulationDay = cycleLen - 14;
+
+    final hasPeriodLog = selectedLog?.flow != null && selectedLog!.flow != 'None';
+    final isPeriodDay = hasPeriodLog || (cycleDay > 0 && cycleDay <= periodDuration);
+    final isOvulationDay = cycleDay == ovulationDay;
+    final isFertileWindow = cycleDay >= ovulationDay - 5 && cycleDay <= ovulationDay + 1;
+
+    String badgeText = 'CYCLE DAY ${cycleDay > 0 ? cycleDay : _selectedDay}';
     String headingText = 'Low fertility chance';
     String subtitleText = 'Your hormone levels are in a stable phase.';
 
@@ -551,8 +578,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
                   // 5. Dual Key-Metrics Cards (Sexual Intercourse Logged & Days Logged)
                   CalendarMetricsCards(
-                    intercourseCount: 2,
-                    daysLoggedCount: 14,
+                    intercourseCount: controller.logEntries.values
+                        .where((l) =>
+                            l.date.year == _selectedYear &&
+                            l.date.month == _selectedMonth &&
+                            l.intercourse == true)
+                        .length,
+                    daysLoggedCount: controller.logEntries.values
+                        .where((l) =>
+                            l.date.year == _selectedYear &&
+                            l.date.month == _selectedMonth)
+                        .length,
                     onIntercourseTap: _openIntercourseHistorySheet,
                     onDaysLoggedTap: _openLoggingSummarySheet,
                   ),

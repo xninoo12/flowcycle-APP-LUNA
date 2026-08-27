@@ -218,7 +218,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.close_rounded));
         await tester.pumpAndSettle();
 
-        // Scroll to Cycle History and tap See all
+        // Scroll to Cycle History and verify clean empty state
         await tester.scrollUntilVisible(
           find.text('Cycle history'),
           200,
@@ -226,7 +226,19 @@ void main() {
         );
         final cycleHistoryTable = find.byType(CycleHistoryTableCard);
         expect(cycleHistoryTable, findsOneWidget);
-        await tester.tap(find.text('See all'));
+        expect(find.text('Cycle 1 in progress 🌸'), findsOneWidget);
+
+        // Verify CycleEntryDetailSheet directly
+        await tester.pumpWidget(
+          buildTestable(
+            const CycleEntryDetailSheet(
+              dateRange: 'Apr 6 – May 3',
+              cycleLength: 28,
+              periodDuration: 5,
+              ovulationDay: 'Apr 20',
+            ),
+          ),
+        );
         await tester.pumpAndSettle();
         expect(find.byType(CycleEntryDetailSheet), findsOneWidget);
         expect(find.text('Cycle Details'), findsOneWidget);

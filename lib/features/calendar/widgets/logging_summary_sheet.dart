@@ -8,7 +8,7 @@ class LoggingSummarySheet extends StatelessWidget {
 
   const LoggingSummarySheet({
     super.key,
-    this.totalDaysLogged = 14,
+    this.totalDaysLogged = 0,
     this.totalCycleDays = 28,
     this.onLogToday,
   });

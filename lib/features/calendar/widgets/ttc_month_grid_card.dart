@@ -3,6 +3,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../shared/providers/app_scope.dart';
 
 /// Interactive Month Calendar Grid Card for Trying to Conceive (TTC) Mode.
 class TtcMonthGridCard extends StatefulWidget {
@@ -211,22 +212,27 @@ class _TtcMonthGridCardState extends State<TtcMonthGridCard> {
 
   Widget _buildCurrentMonthDay(int day) {
     final isSelected = day == _selectedDay;
+    final now = DateTime.now();
+    final date = DateTime(now.year, now.month, day);
 
-    // Period Days: 2, 3, 4, 5, 6, 7
-    final isPeriod = day >= 2 && day <= 7;
+    final controller = AppScope.of(context);
+    final log = controller.getLogForDate(date);
+    final profile = controller.userProfile;
+    final lastPeriod = profile.lastPeriodStartDate;
+    final cycleLen = profile.averageCycleLength;
+    final periodDuration = profile.typicalPeriodDuration;
 
-    // Pre-ovulation Day: 12 (Peach/Orange)
-    final isPreOvulation = day == 12;
+    final daysDiff = date.difference(DateTime(lastPeriod.year, lastPeriod.month, lastPeriod.day)).inDays;
+    final cycleDay = (daysDiff % cycleLen) + 1;
+    final ovulationDay = cycleLen - 14;
 
-    // Fertile Days with Green Heart: 13, 15, 16, 17
-    final isFertileHeart = day == 13 || (day >= 15 && day <= 17);
-
-    // Today / Ovulation Peak (Day 14 - Green ring + arrow)
-    final isTodayOvulation = day == 14;
-
-    // Luteal Phase Days: 1, 20, 21, 22, 23, 24, 26, 27, 28, 29, 30, 31
-    final isLuteal =
-        day == 1 || (day >= 20 && day <= 24) || (day >= 26 && day <= 31);
+    final hasPeriodLog = log?.flow != null && log!.flow != 'None';
+    final isPeriod = hasPeriodLog || (cycleDay > 0 && cycleDay <= periodDuration);
+    final isPreOvulation = cycleDay == ovulationDay - 2;
+    final isFertileHeart =
+        (cycleDay >= ovulationDay - 5 && cycleDay <= ovulationDay + 1 && cycleDay != ovulationDay);
+    final isTodayOvulation = cycleDay == ovulationDay;
+    final isLuteal = cycleDay > ovulationDay + 1 && cycleDay <= cycleLen;
 
     return GestureDetector(
       onTap: () {

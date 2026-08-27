@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../shared/providers/app_scope.dart';
 
 /// Interactive Calendar Month Grid Card for FlowCycle matching the exact design mockup
 /// with full dynamic date calculations, layer filtering, and touch/long-press interactivity.
@@ -360,24 +361,29 @@ class _MonthGridCardState extends State<MonthGridCard> {
     final showFertile = filters['fertileWindow'] ?? true;
     final showIntimacy = filters['intimacy'] ?? true;
 
-    // Period days: 4 (hollow ring), 5, 6, 7, 8 (filled pink)
-    final isPeriodHollow = showPeriod && day == 4;
-    final isPeriodFilled = showPeriod && day >= 5 && day <= 8;
+    final date = DateTime(widget.selectedYear, widget.selectedMonth, day);
+    final controller = AppScope.of(context);
+    final log = controller.getLogForDate(date);
 
-    // Logged Period badge: Day 11 (hollow pink + heart badge)
-    final isLoggedPeriod = showPeriod && day == 11;
+    final profile = controller.userProfile;
+    final lastPeriod = profile.lastPeriodStartDate;
+    final cycleLen = profile.averageCycleLength;
+    final periodDuration = profile.typicalPeriodDuration;
 
-    // Luteal/Transition Phase: 12, 13, 14 (orange ring)
-    final isLuteal = showPeriod && day >= 12 && day <= 14;
+    final daysDiff = date.difference(DateTime(lastPeriod.year, lastPeriod.month, lastPeriod.day)).inDays;
+    final cycleDay = (daysDiff % cycleLen) + 1;
+    final ovulationDay = cycleLen - 14;
 
-    // Fertile Window: 15, 16, 17, 19, 20 (green ring)
-    final isFertile = showFertile && ((day >= 15 && day <= 17) || day == 19 || day == 20);
+    final hasPeriodLog = log?.flow != null && log!.flow != 'None';
+    final isPeriodFilled = showPeriod && (hasPeriodLog || (cycleDay > 0 && cycleDay <= periodDuration));
+    final isPeriodHollow = showPeriod && (cycleDay == periodDuration + 1 && !hasPeriodLog);
+    final isLoggedPeriod = showPeriod && hasPeriodLog;
 
-    // Sex Logged badge: Day 19 (purple lock-heart badge)
-    final isSexLogged = showIntimacy && day == 19;
-
-    // Ovulation Peak Day: Day 18 (purple droplet shape)
-    final isOvulation = showFertile && day == 18;
+    final isOvulation = showFertile && (cycleDay == ovulationDay);
+    final isFertile = showFertile &&
+        (cycleDay >= ovulationDay - 5 && cycleDay <= ovulationDay + 1 && cycleDay != ovulationDay);
+    final isLuteal = showPeriod && (cycleDay > ovulationDay + 1 && cycleDay <= cycleLen);
+    final isSexLogged = showIntimacy && (log?.intercourse == true);
 
     return GestureDetector(
       onTap: () {
